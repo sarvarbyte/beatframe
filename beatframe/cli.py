@@ -68,6 +68,41 @@ def templates():
             typer.echo(f"    {field}: {json.dumps(default) if not isinstance(default, str) else default}")
 
 
+STARTER = '''\
+title: "{title}"
+
+voice:
+  provider: edge             # edge | files | silent
+  name: en-US-AndrewNeural
+  rate: "-5%"
+
+video: {{width: 1920, height: 1080, fps: 30}}
+
+beats:
+  - text: "The first sentence the narrator says."
+    scene: title_card
+    chapter: "Intro"
+    params: {{line1: "FIRST LINE", line2: "BIG SECOND LINE"}}
+
+  - text: "A sentence you want to land hard."
+    scene: statement
+    params: {{text: "A sentence you want to land hard.", highlight: "hard"}}
+'''
+
+
+@app.command()
+def new(name: str, title: str = typer.Option("My new video", help="Video title")):
+    """Create projects/<name>/<name>.yaml with a starter script."""
+    folder = Path("projects") / name
+    file = folder / f"{name}.yaml"
+    if file.exists():
+        typer.echo(f"✗ {file} already exists")
+        raise typer.Exit(1)
+    folder.mkdir(parents=True, exist_ok=True)
+    file.write_text(STARTER.format(title=title), encoding="utf-8")
+    typer.echo(f"✓ created {file}\n  next: edit it, then  beatframe preview {file}")
+
+
 @app.command()
 def clean(project: Path):
     """Delete the build cache of a project."""

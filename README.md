@@ -17,7 +17,8 @@ script.yaml ─► voice (TTS) ─► per-beat Manim clips (cached, parallel) �
 ## Install (Ubuntu)
 
 ```bash
-sudo apt install ffmpeg libpango1.0-dev libcairo2-dev pkg-config python3-venv
+sudo apt install ffmpeg libpango1.0-dev libcairo2-dev pkg-config python3-venv \
+    python3-dev build-essential libgl1-mesa-dev
 cd beatframe
 python3 -m venv .venv
 source .venv/bin/activate

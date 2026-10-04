@@ -155,7 +155,7 @@ class ScaleZoom(Template):
                 j.amp *= ZOOM
 
             def switch_label(_m, alpha, lbl=nxt_label):
-                if alpha > 0.8:
+                if alpha > 0.9:
                     state["label"] = lbl
 
             from manim import UpdateFromAlphaFunc
