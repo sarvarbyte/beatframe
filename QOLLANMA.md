@@ -1,5 +1,34 @@
 # Beatframe — foydalanish qo'llanmasi
 
+## Beatframe Studio (veb-ilova) — asosiy usul
+
+**Bir martalik sozlash:**
+```bash
+cd ~/Desktop/"YouTube content"/beatframe
+bash studio.sh --install
+```
+
+**Keyin har safar ikki yo'ldan biri:**
+- terminalda `studio` deb yozing;
+- yoki ilovalar menyusidan **Beatframe Studio**'ni oching. Uni dock'ga ham mahkamlab qo'yish mumkin.
+
+Ilova ishga tushadi va brauzerda `http://127.0.0.1:8000` o'zi ochiladi. Agar u allaqachon ishlab turgan bo'lsa, faqat brauzer ochiladi. To'xtatish uchun terminal oynasini yoping yoki `Ctrl+C` bosing.
+
+1. **New video** maydoniga men bergan script'ni to'liq paste qiling. Matn yozilayotganda xatolar shu zahoti ko'rsatiladi.
+2. **Create & preview** tugmasini bosing. Progress jonli ko'rinadi, preview tayyor bo'lgach video o'zi ochiladi.
+3. Biror joy yoqmasa, **Edit beats** bo'limiga o'ting. U yerda gapni, sahnani va sozlamalarni o'zgartirasiz, keyin **Save & preview this beat** tugmasini bosib, faqat o'sha bo'lakni ko'rasiz. Beat'larni qo'shish (＋), o'chirish (✕) va tartibini almashtirish (↑ ↓) ham shu yerda.
+4. **Script** bo'limida butun yaml'ni to'g'ridan-to'g'ri tahrirlash yoki yangi versiya bilan almashtirish mumkin.
+5. Hammasi yoqqanda **Render final** tugmasini bosing.
+6. **Publish** bo'limida ikki yo'l bor:
+   - **Manual upload** — `final.mp4` va subtitrni yuklab olasiz, title va description'ni "copy" tugmasi bilan nusxalab, Studio'ga qo'yasiz. Bu har doim ishlaydi.
+   - **Upload to YouTube** — dasturning o'zi yuklaydi: title, description, boblar, subtitr, muqova, ko'rinish va reja vaqti bilan. Bir martalik sozlash kerak, uning qadamlari sahifaning o'zida yozilgan. Muhim: Google loyihangiz YouTube API auditidan o'tmaguncha, API orqali yuklangan har bir video **Private** bo'lib qoladi.
+
+Videolar va script'lar `projects/` papkasida saqlanadi, shuning uchun quyidagi terminal buyruqlari ham xuddi shu loyihalar bilan ishlaydi.
+
+---
+
+## Terminal orqali (ixtiyoriy)
+
 ## 0. Har safar boshlashda
 
 ```bash

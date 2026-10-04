@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}{{ project.title if project else slug }} · Beatframe{% endblock %}
+{% block body %}
+<div class="phead">
+  <div>
+    <a class="back" href="/">← All videos</a>
+    <h1>{{ project.title if project else slug }}</h1>
+    {% if project %}<p class="muted">{{ project.beats|length }} beats · voice {{ project.voice.name if project.voice.provider == "edge" else project.voice.provider }}</p>{% endif %}
+  </div>
+  <div class="actions">
+    <button class="btn" hx-post="/p/{{ slug }}/render" hx-vals='{"kind": "preview"}' hx-target="#job" hx-swap="outerHTML">Render preview</button>
+    <button class="btn primary" hx-post="/p/{{ slug }}/render" hx-vals='{"kind": "make"}' hx-target="#job" hx-swap="outerHTML">Render final</button>
+  </div>
+</div>
+
+<nav class="tabs">
+  {% for t, label in [("video","Video"),("edit","Edit beats"),("script","Script"),("publish","Publish")] %}
+  <a href="/p/{{ slug }}?tab={{ t }}" class="{{ 'on' if tab == t }}">{{ label }}</a>
+  {% endfor %}
+</nav>
+
+{% set show_job = job and (job.status != "done" or (job.kind == "beat" and tab == "edit") or (job.kind == "upload" and tab == "publish")) %}
+{% if show_job %}{% include "_job.html" %}{% else %}<div id="job" class="job"></div>{% endif %}
+
+{% if tab == "video" %}
+  {% set has_final = out.get("final.mp4") %}{% set has_prev = out.get("preview.mp4") %}
+  {% if has_final or has_prev %}
+    <div class="player card">
+      {% if has_final %}
+        <video controls src="/files/{{ slug }}/output/final.mp4?v={{ has_final.mtime }}"></video>
+        <div class="row"><span class="tag ok">Final · 1080p</span>
+          {% if has_prev %}<a class="muted" href="/files/{{ slug }}/output/preview.mp4?v={{ has_prev.mtime }}" target="_blank">open the preview instead</a>{% endif %}</div>
+      {% else %}
+        <video controls src="/files/{{ slug }}/output/preview.mp4?v={{ has_prev.mtime }}"></video>
+        <div class="row"><span class="tag">Preview · 480p</span>
+          <span class="muted">Happy with it? Press <b>Render final</b>. Something off? Go to <a href="/p/{{ slug }}?tab=edit">Edit beats</a>.</span></div>
+      {% endif %}
+    </div>
+    <div class="row downloads">
+      {% for f in ["final.mp4", "subtitles.srt", "chapters.txt"] %}{% if out.get(f) %}
+        <a class="btn small" href="/files/{{ slug }}/output/{{ f }}" download>↓ {{ f }}</a>{% endif %}{% endfor %}
+    </div>
+  {% else %}
+    <div class="empty card">No video yet. Press <b>Render preview</b> to make a quick 480p version.</div>
+  {% endif %}
+
+{% elif tab == "edit" %}
+  <p class="muted">Change a beat and press <b>Save &amp; preview this beat</b> to see just that part. When everything looks right, render the full preview or the final video. Only changed beats are rendered again.</p>
+  {% for b in beats %}{% include "_beat.html" %}{% endfor %}
+
+{% elif tab == "script" %}
+  {% if perr %}<div class="alert err"><strong>This script cannot be read</strong><pre>{{ perr }}</pre></div>{% endif %}
+  <form class="card" hx-post="/p/{{ slug }}/script" hx-target="#check">
+    <textarea name="script" class="code big" spellcheck="false">{{ raw }}</textarea>
+    <div id="check"></div>
+    <div class="row">
+      <button class="btn" name="action" value="save">Save</button>
+      <button class="btn primary" name="action" value="preview">Save &amp; render preview</button>
+      <span class="muted">Paste a whole new version here to replace the script.</span>
+    </div>
+  </form>
+  <form method="post" action="/p/{{ slug }}/delete" onsubmit="return confirm('Move this video to the trash folder?')" class="danger">
+    <button class="btn ghost small">Delete this video</button>
+  </form>
+
+{% elif tab == "publish" %}
+  {% if not out.get("final.mp4") %}
+    <div class="alert warn">Render the final video first — publishing uses <code>final.mp4</code>.</div>
+  {% endif %}
+  <div class="pub">
+    <section class="card">
+      <h2>Upload to YouTube</h2>
+      {% if not yt.configured %}
+        <p>One-time setup (about 10 minutes):</p>
+        <ol class="steps">
+          <li>Open <a href="https://console.cloud.google.com/" target="_blank">console.cloud.google.com</a>, create a project.</li>
+          <li><b>APIs &amp; Services → Library</b> → enable <b>YouTube Data API v3</b>.</li>
+          <li><b>OAuth consent screen</b> → External → add your Google account as a <b>test user</b>.</li>
+          <li><b>Credentials → Create credentials → OAuth client ID → Desktop app</b>, then download the JSON.</li>
+          <li>Save it as <code>{{ yt.config_dir }}/client_secret.json</code> and reload this page.</li>
+        </ol>
+      {% elif not yt.connected %}
+        {% if yt.secret.kind != "installed" %}<div class="alert warn">The client file looks like type “{{ yt.secret.kind }}”. Create a <b>Desktop app</b> OAuth client instead.</div>{% endif %}
+        <a class="btn primary" href="/youtube/connect?next=/p/{{ slug }}?tab=publish">Connect YouTube</a>
+        <p class="muted">You will sign in with Google and allow Beatframe to upload to your channel.</p>
+      {% else %}
+        <div class="row"><span class="tag ok">Connected{% if yt.channel %}: {{ yt.channel }}{% endif %}</span>
+          <form method="post" action="/youtube/disconnect"><input type="hidden" name="next" value="/p/{{ slug }}?tab=publish"><button class="btn ghost small">Disconnect</button></form></div>
+        <div class="alert warn">Until your Google Cloud project passes YouTube's API audit, YouTube locks every API upload to <b>Private</b>. You can still upload drafts here, or use the manual upload on the right.</div>
+        <form hx-post="/p/{{ slug }}/publish" hx-target="#job" hx-swap="outerHTML"
+              hx-vals='js:{tz_offset: new Date().getTimezoneOffset()}'>
+          <label class="field wide"><span>Title</span><input name="title" maxlength="100" value="{{ project.title }}"></label>
+          <label class="field wide"><span>Description</span><textarea name="description" rows="8">{{ desc }}</textarea></label>
+          <label class="field wide"><span>Tags</span><input name="tags" value="{{ project.tags | join(', ') }}"></label>
+          <div class="grid2">
+            <label class="field"><span>Visibility</span>
+              <select name="privacy"><option value="private">Private</option><option value="unlisted">Unlisted</option><option value="public">Public</option></select></label>
+            <label class="field"><span>Schedule (optional, your local time)</span><input type="datetime-local" name="publish_at"></label>
+          </div>
+          <label class="check"><input type="checkbox" name="captions" checked> Add English subtitles from the script</label>
+          <label class="check"><input type="checkbox" name="synthetic"> Mark as altered or synthetic content (realistic AI people or events)</label>
+          {% if out.thumbs %}
+          <div class="field wide"><span>Thumbnail</span>
+            <div class="thumbs">
+              <label><input type="radio" name="thumb" value="" checked><span class="none">YouTube picks</span></label>
+              {% for t in out.thumbs %}<label><input type="radio" name="thumb" value="{{ t }}"><img src="/files/{{ slug }}/output/thumbs/{{ t }}"></label>{% endfor %}
+            </div></div>
+          {% endif %}
+          <button class="btn primary" {% if not out.get("final.mp4") %}disabled{% endif %}>Upload</button>
+        </form>
+      {% endif %}
+    </section>
+
+    <section class="card">
+      <h2>Manual upload</h2>
+      <p class="muted">Always works. Download the files and paste these into YouTube Studio.</p>
+      <div class="row downloads">
+        {% for f in ["final.mp4", "subtitles.srt"] %}{% if out.get(f) %}<a class="btn small" href="/files/{{ slug }}/output/{{ f }}" download>↓ {{ f }}</a>{% endif %}{% endfor %}
+      </div>
+      <label class="field wide"><span>Title <button class="link" type="button" data-copy="#m-title">copy</button></span>
+        <input id="m-title" readonly value="{{ project.title }}"></label>
+      <label class="field wide"><span>Description <button class="link" type="button" data-copy="#m-desc">copy</button></span>
+        <textarea id="m-desc" rows="10" readonly>{{ desc }}</textarea></label>
+      <label class="field wide"><span>Tags <button class="link" type="button" data-copy="#m-tags">copy</button></span>
+        <input id="m-tags" readonly value="{{ project.tags | join(', ') }}"></label>
+      {% if out.thumbs %}<div class="thumbs small">{% for t in out.thumbs %}<a href="/files/{{ slug }}/output/thumbs/{{ t }}" download><img src="/files/{{ slug }}/output/thumbs/{{ t }}"></a>{% endfor %}</div>{% endif %}
+    </section>
+  </div>
+{% endif %}
+{% endblock %}

@@ -40,6 +40,16 @@ def glow(radius: float, color: str, layers: int = 6, strength: float = 0.18) -> 
     return VGroup(halo, core)
 
 
+def soft_glow(radius: float, color: str, layers: int = 8, strength: float = 0.07) -> VGroup:
+    """A glow with no hard core: stacked transparent discs, brightest in the middle."""
+    from manim import Circle
+
+    return VGroup(*[
+        Circle(radius=radius * k / layers).set_stroke(width=0).set_fill(color, strength)
+        for k in range(layers, 0, -1)
+    ])
+
+
 class Template:
     name: ClassVar[str] = ""
     description: ClassVar[str] = ""

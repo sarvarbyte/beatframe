@@ -47,6 +47,7 @@ def run(
     only: list[int] | None = None,
     workers: int | None = None,
     log: Callable[[str], None] = print,
+    out_name: str | None = None,
 ) -> RunResult:
     root = project_file.parent
     build = root / "build"
@@ -88,7 +89,7 @@ def run(
     audio = build / ("voice_preview.wav" if preview else "voice.wav")
     assemble.build_audio([voices[i - 1] for i in order], sel_durs, audio)
 
-    name = "preview.mp4" if preview else "final.mp4"
+    name = out_name or ("preview.mp4" if preview else "final.mp4")
     video = out_dir / name
     assemble.build_video([clips[i] for i in order], audio, video)
 

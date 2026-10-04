@@ -1,0 +1,42 @@
+<div id="job" class="job"
+  {% if job and job.status in ("queued", "running") %}hx-get="/p/{{ slug }}/job" hx-trigger="every 1s" hx-swap="outerHTML"{% endif %}>
+{% if job %}
+  <div class="jobhead">
+    <span class="state {{ job.status }}">{{ {"queued": "Waiting", "running": "Working", "done": "Done", "failed": "Failed"}[job.status] }}</span>
+    <strong>{{ job.label }}</strong>
+    {% if job.finished %}<span class="muted">· {{ (job.finished - job.created) | round | int }} s</span>{% endif %}
+  </div>
+  <div class="bar"><i style="width: {{ (job.progress * 100) | round | int }}%"></i></div>
+
+  {% if job.status == "failed" %}
+    <div class="alert err"><pre>{{ job.error }}</pre></div>
+  {% endif %}
+
+  {% if job.status == "done" %}
+    {% if job.kind == "beat" %}
+      <video class="mini" src="/files/{{ slug }}/output/beat_preview.mp4?v={{ job.finished|int }}" controls autoplay></video>
+    {% elif job.kind in ("preview", "make") %}
+      <div class="row">
+        <a class="btn primary" href="/p/{{ slug }}?tab=video">Watch {{ "final video" if job.kind == "make" else "preview" }}</a>
+        <span class="muted">{{ job.result.seconds }} s long</span>
+      </div>
+      <script>
+        (() => { const k = "seen-{{ job.id }}"; if (!sessionStorage.getItem(k)) { sessionStorage.setItem(k, 1);
+          const t = new URLSearchParams(location.search).get("tab"); if (!t || t === "video") location.reload(); } })();
+      </script>
+    {% elif job.kind == "upload" %}
+      <div class="alert ok">
+        Uploaded as <strong>{{ job.result.privacy }}</strong>:
+        <a href="{{ job.result.url }}" target="_blank">{{ job.result.url }}</a> ·
+        <a href="{{ job.result.studio }}" target="_blank">open in Studio</a>
+        {% for w in job.result.warnings %}<div class="muted">⚠ {{ w }}</div>{% endfor %}
+      </div>
+    {% endif %}
+  {% endif %}
+
+  <details {% if job.status in ("running", "failed") %}open{% endif %}>
+    <summary class="muted">Log</summary>
+    <pre class="log">{{ job.lines[-14:] | join("\n") }}</pre>
+  </details>
+{% endif %}
+</div>

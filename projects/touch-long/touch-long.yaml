@@ -1,0 +1,251 @@
+# Long documentary (~11 min). Open in Beatframe Studio, or:
+#   beatframe preview projects/touch-long/touch-long.yaml
+title: "You've Never Touched Anything. So What Are You Feeling?"
+description: |
+  You have never touched anything. Not your phone, not the floor, not another person. So what is that feeling in your fingertips?
+
+  We fall into a fingertip down to its atoms, meet the four sensors hidden in your skin, watch a single molecule turn a push into an electrical signal, and follow that signal on its 20-millisecond race to the brain. Then it gets stranger: your brain predicts most of what you feel, which is why you can't tickle yourself, and why a rubber hand can start to feel like yours.
+
+  Sources:
+  • Skedung et al. (2013), "Feeling small: exploring the tactile perception limits", Scientific Reports 3: 2617
+  • Scheibert et al. (2009), "The role of fingerprints in the coding of tactile information probed with a biomimetic sensor", Science 323
+  • Corniani & Saal (2020), "Tactile innervation densities across the whole body", Journal of Neurophysiology 124(4)
+  • Coste et al. (2010), "Piezo1 and Piezo2 are essential components of distinct mechanically activated cation channels", Science 330
+  • Chesler et al. (2016), "The role of PIEZO2 in human mechanosensation", New England Journal of Medicine 375
+  • The Nobel Prize in Physiology or Medicine 2021: David Julius and Ardem Patapoutian
+  • Blakemore, Frith & Wolpert (1999), "Spatio-temporal prediction modulates the perception of self-produced stimuli", Journal of Cognitive Neuroscience 11(5)
+  • Botvinick & Cohen (1998), "Rubber hands 'feel' touch that eyes see", Nature 391: 756
+
+  Animated with Manim.
+tags: [touch, sense of touch, atoms, electrons, pauli exclusion, piezo2, mechanoreceptors, tickle, rubber hand illusion, neuroscience, human body, science documentary]
+
+voice:
+  provider: edge
+  name: en-US-AndrewNeural
+  rate: "-5%"
+
+video: {width: 1920, height: 1080, fps: 30}
+
+beats:
+  # ── Cold open ───────────────────────────────────────────────
+  - text: "You have never touched anything. Not your phone. Not the floor under your feet. Not the hand of someone you love."
+    scene: title_card
+    chapter: "You've never touched anything"
+    params: {line1: "YOU HAVE NEVER", line2: "TOUCHED ANYTHING"}
+
+  - text: "And yet, right now, you can feel the weight of your body on the chair. The texture of your clothes. The cool edge of the screen."
+    scene: statement
+    params: {text: "And yet you feel everything.", highlight: "everything", motif: particles}
+
+  - text: "So if nothing ever touches, what exactly are you feeling?"
+    scene: statement
+    params: {text: "So what are you feeling?", highlight: "feeling", motif: orb}
+
+  - text: "In the next few minutes, we'll fall into a fingertip until there is nothing left to touch, meet a molecule that won a Nobel Prize, and catch your brain in the act of making things up."
+    scene: statement
+    params: {text: "Nothing to touch. A Nobel molecule. A brain that makes things up.", highlight: "brain", max_chars: 22, motif: rings}
+
+  - text: "The answer turns out to be one of the strangest stories in your body, and it comes in three layers. Atoms that refuse to meet. Sensors hidden in your skin. And a brain that quietly fills in the rest."
+    scene: statement
+    params: {text: "Atoms. Sensors. A brain that fills in the rest.", highlight: "brain", max_chars: 18}
+
+  # ── Part 1: atoms ───────────────────────────────────────────
+  - text: "Let's start at the bottom."
+    scene: title_card
+    chapter: "Falling into a fingertip"
+    params: {kicker: "PART 1", line1: "FALLING INTO", line2: "A FINGERTIP"}
+
+  - text: "Press your fingertip against a table, and then fall into it. Past the ridges of your fingerprint. Past your skin cells, stacked like bricks. Down, until the world turns into atoms."
+    scene: scale_zoom
+    params: {levels: [fingertip, skin, cells, atoms]}
+
+  - text: "And atoms are strange places. If the nucleus at the centre were a grain of sand, the whole atom would be the size of a football stadium. Everything in between is a thin, buzzing haze of electrons."
+    scene: atom_scale
+
+  - text: "So the surface of your finger isn't a wall. It's a cloud. And so is the surface of the table."
+    scene: statement
+    params: {text: "Not a wall. A cloud.", highlight: "cloud", motif: rings}
+
+  - text: "When two clouds come close, their electrons push back. Like charges repel, and on top of that, a rule of quantum physics called the Pauli exclusion principle forbids the electrons from crowding into the same state. The closer you push, the harder they push back."
+    scene: electron_repulsion
+    params: {top_label: "your finger", bottom_label: "the table", gap_label: "never zero"}
+
+  - text: "You can press harder. They push harder. The push always wins."
+    scene: statement
+    params: {text: "The push always wins.", highlight: "push"}
+
+  - text: "So your finger never lands on the table. It hovers, on a cushion of force far too thin to see. What you call contact is the moment that push becomes strong enough for your skin to notice."
+    scene: statement
+    params: {text: "You don't land. You hover.", highlight: "hover", motif: particles}
+
+  - text: "The same thing is happening right now, under you. When you sit on a chair, you're not resting on it. You're floating a tiny distance above it, held up by the same electric push. In a very real sense, you are always levitating."
+    scene: electron_repulsion
+    params: {top_label: "you", bottom_label: "your chair", gap_label: "always a gap"}
+
+  - text: "Physicists would add one honest footnote. Atoms have no sharp edge, so contact at this scale has no clear line. If touch means anything down here, it means exactly this push."
+    scene: statement
+    params: {text: "Down here, touch is just force.", highlight: "force", max_chars: 18}
+
+  - text: "Which raises a problem. If all you ever feel is a push, how can touch be so astonishingly detailed?"
+    scene: statement
+    params: {text: "So how can a push feel so detailed?", highlight: "detailed", motif: orb, max_chars: 18}
+
+  # ── Part 2: sensitivity ────────────────────────────────────
+  - text: "In 2013, researchers in Stockholm asked people to run their fingers over surfaces with tiny wrinkles. People could tell them apart even when the wrinkles were just 13 nanometres tall."
+    scene: source_card
+    chapter: "Feeling 13 nanometres"
+    params: {number: "13 nm", caption: "the smallest wrinkle a fingertip could feel", study: "Skedung et al., Scientific Reports (2013)"}
+
+  - text: "To picture that, blow your fingertip up to the size of the Earth. That 13 nanometre wrinkle becomes a bump about as tall as a house. And you would still feel it."
+    scene: earth_finger
+
+  - text: "Part of the trick is your fingerprint. When you slide a finger across a surface, those ridges catch on tiny bumps and turn them into vibrations, tuned to exactly the frequencies your deepest sensors love. Your fingerprints aren't just for identification. They're amplifiers."
+    scene: scale_zoom
+    params: {levels: [fingertip, skin], show_scale_bar: false}
+
+  - text: "Something under your skin is reading those pushes with incredible precision. So what's down there?"
+    scene: statement
+    params: {text: "So what's under your skin?", highlight: "skin", motif: rings}
+
+  # ── Part 3: sensors ─────────────────────────────────────────
+  - text: "Meet the sensors."
+    scene: title_card
+    chapter: "The four sensors"
+    params: {kicker: "PART 2", line1: "THE SENSORS", line2: "UNDER YOUR SKIN"}
+
+  - text: "Just beneath the surface sit four kinds of touch sensors. Each one listens for a different kind of push."
+    scene: skin_receptors
+    params: {focus: all}
+
+  - text: "Meissner corpuscles sit right under the ridges. They fire at light, fluttering touch, and when something starts to slip from your fingers."
+    scene: skin_receptors
+    params: {focus: meissner}
+
+  - text: "Merkel cells hold steady pressure. They trace edges and shapes, which is how you can read Braille or find the right key in your pocket."
+    scene: skin_receptors
+    params: {focus: merkel}
+
+  - text: "Deep down, Pacinian corpuscles are wrapped in layers like an onion. They catch fast vibration, like the buzz of a phone or the grain of a surface sliding past."
+    scene: skin_receptors
+    params: {focus: pacinian}
+
+  - text: "And Ruffini endings feel your skin stretch, which helps you sense how your fingers and hand are moving."
+    scene: skin_receptors
+    params: {focus: ruffini}
+
+  - text: "Your hand alone is wired with about seventeen thousand of these touch nerve fibres, packed most densely in your fingertips."
+    scene: source_card
+    params: {number: "17,000", caption: "touch nerve fibres in a single hand", study: "Corniani & Saal, Journal of Neurophysiology (2020)"}
+
+  - text: "But a sensor still has to turn a push into something the nervous system understands. How does pressure become a signal?"
+    scene: statement
+    params: {text: "How does a push become a signal?", highlight: "signal", motif: orb, max_chars: 18}
+
+  - text: "The answer is a tiny molecular gate called Piezo2, sitting in the membrane of the nerve ending. When your skin is pressed, the membrane bends and stretches, and that pulls the gate open."
+    scene: ion_channel
+    chapter: "The molecule that feels"
+    params: {show_spike: false}
+
+  - text: "Charged particles rush through the opening, and the nerve fires. A push has become electricity."
+    scene: ion_channel
+    params: {caption: "ions rush in, the nerve fires"}
+
+  - text: "We know how much depends on this one molecule, because a few people are born without a working version of it. They can't feel a gentle brush or a vibration on their skin, and they struggle to know where their limbs are unless they can see them. With their eyes closed, even walking becomes difficult."
+    scene: statement
+    params: {text: "Without Piezo2, the world goes quiet.", highlight: "quiet", motif: orb, max_chars: 18}
+
+  - text: "Those patients were studied in detail in 2016, and they showed that this single gate does most of the work of turning gentle touch into a signal."
+    scene: source_card
+    params: {number: "2016", count: false, caption: "people born without working Piezo2", study: "Chesler et al., New England Journal of Medicine (2016)"}
+
+  - text: "This discovery was so fundamental that in 2021 it earned a Nobel Prize, shared by Ardem Patapoutian and David Julius for revealing how we sense touch and temperature."
+    scene: source_card
+    params: {number: "2021", count: false, caption: "Nobel Prize for the sensors of touch and temperature", study: "Patapoutian & Julius, Physiology or Medicine"}
+
+  # ── Part 4: the brain ───────────────────────────────────────
+  - text: "But the story doesn't end in the skin."
+    scene: title_card
+    chapter: "The race to the brain"
+    params: {kicker: "PART 3", line1: "THE BRAIN", line2: "FILLS IN THE REST"}
+
+  - text: "The signal now races up your arm, into the spinal cord and up to the brain, at up to seventy metres per second. The whole trip takes around twenty milliseconds."
+    scene: nerve_race
+
+  - text: "That sounds fast. But for a brain trying to catch a falling glass, twenty milliseconds is a long time to wait. So it doesn't wait."
+    scene: statement
+    params: {text: "Your brain doesn't wait. It predicts.", highlight: "predicts", motif: particles}
+
+  - text: "It also ignores. A moment ago you probably couldn't feel your socks, or your watch, or the back of the chair. Many of your sensors quiet down when a touch stops changing, and your brain stops listening. Now that I've mentioned them, there they are again."
+    scene: statement
+    params: {text: "You stopped feeling your socks. Until now.", highlight: "socks", motif: rings, max_chars: 18}
+
+  - text: "Every time you move, your brain sends a copy of the command to itself, and predicts the touch that's about to happen. Then it subtracts that prediction from what your skin actually reports. Neuroscientists call this signal an efference copy."
+    scene: prediction
+    chapter: "Why you can't tickle yourself"
+    params: {mode: self}
+
+  - text: "When the touch is your own, the two cancel out, and you feel almost nothing. That's why you can't tickle yourself."
+    scene: statement
+    params: {text: "That's why you can't tickle yourself.", highlight: "tickle", max_chars: 18}
+
+  - text: "When someone else touches you, there's no prediction to subtract. The full signal gets through."
+    scene: prediction
+    params: {mode: other}
+
+  - text: "In 1999, scientists tested this with a robot that let people tickle their own hand. The longer the delay between the person's movement and the touch, the more ticklish it felt, because the prediction no longer matched."
+    scene: source_card
+    params: {number: "1999", count: false, caption: "the more delay, the more it tickled", study: "Blakemore, Frith & Wolpert, J. Cognitive Neuroscience (1999)"}
+
+  - text: "And if your brain can erase touch that is real, it can also create touch that isn't there."
+    scene: statement
+    params: {text: "It can feel touch where there is none.", highlight: "none", motif: rings, max_chars: 18}
+
+  - text: "Here's a famous experiment. Your real hand is hidden behind a screen. In front of you lies a rubber hand. Someone strokes both with a brush, at the same moment, in the same place."
+    scene: rubber_hand
+    chapter: "The rubber hand"
+    params: {phase: sync}
+
+  - text: "After a minute or two, something unsettling happens. The strokes start to feel as if they're on the rubber hand. Some people even flinch when it's threatened."
+    scene: rubber_hand
+    params: {phase: transfer}
+
+  - text: "The rubber hand illusion was first described in 1998, and it has been repeated in labs around the world ever since."
+    scene: source_card
+    params: {number: "1998", count: false, caption: "the rubber hand illusion", study: "Botvinick & Cohen, Nature (1998)"}
+
+  - text: "What you feel is not a direct recording of the world. It is your brain's best guess about it."
+    scene: statement
+    params: {text: "Touch is your brain's best guess.", highlight: "guess", motif: orb}
+
+  # ── Part 5: what touch really is ───────────────────────────
+  - text: "So let's put it all back together."
+    scene: title_card
+    chapter: "What touch really is"
+    params: {kicker: "PART 4", line1: "WHAT TOUCH", line2: "REALLY IS"}
+
+  - text: "At the bottom, your atoms never meet anything. Electron clouds push against electron clouds, and the push always wins."
+    scene: electron_repulsion
+    params: {top_label: "you", bottom_label: "the world", gap_label: "never zero", show_forces: false}
+
+  - text: "Under your skin, four kinds of sensors and thousands of nerve fibres turn that push into electricity."
+    scene: skin_receptors
+    params: {focus: all, title: "push → signal"}
+
+  - text: "That signal races to your brain, which compares it with what it already expected, and then decides what you feel."
+    scene: nerve_race
+    params: {caption: "and the brain decides"}
+
+  - text: "Even now, your feet aren't really touching the ground. Zoom out far enough, and every footstep on Earth, every handshake, every hug, is the same quiet push between clouds of electrons."
+    scene: cosmic_zoom
+
+  - text: "So no, you have never truly touched anything. But that doesn't make touch less real. It makes it more remarkable. A push between clouds, turned into electricity by a molecule, and turned into a feeling by a brain that guesses ahead."
+    scene: statement
+    params: {text: "Not less real. More remarkable.", highlight: "remarkable", motif: orb}
+
+  - text: "You have never touched anyone you love. You felt them anyway."
+    scene: statement
+    params: {text: "You never touched them. You felt them anyway.", highlight: "felt", motif: particles, max_chars: 18}
+
+  - text: "Next time: if touch is a guess, what are you really seeing? Subscribe to Human Unknowns, and I'll see you there."
+    scene: title_card
+    params: {kicker: "NEXT", line1: "WHAT ARE YOU", line2: "REALLY SEEING?"}

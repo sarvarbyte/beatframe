@@ -46,11 +46,12 @@ def clip_key(job: ClipJob) -> str:
 
 
 RUNNER = '''\
+import json
 from beatframe.templates.base import BeatScene
 
 class Beat(BeatScene):
     template_name = {template!r}
-    params = {params}
+    params = json.loads({params!r})
     beat_duration = {duration}
     seed = {seed}
 '''

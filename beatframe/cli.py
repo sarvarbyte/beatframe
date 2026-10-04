@@ -110,5 +110,15 @@ def clean(project: Path):
     typer.echo("build cache removed")
 
 
+@app.command()
+def web(projects: Path = typer.Option(Path("projects"), help="Folder with your video projects"),
+        port: int = 8000, no_browser: bool = False):
+    """Start Beatframe Studio in your browser (http://127.0.0.1:8000)."""
+    from beatframe.web.app import serve
+
+    typer.echo(f"Beatframe Studio → http://127.0.0.1:{port}   (Ctrl+C to stop)")
+    serve(projects, port=port, open_browser=not no_browser)
+
+
 if __name__ == "__main__":
     app()

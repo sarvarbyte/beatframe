@@ -34,6 +34,8 @@ class Video(BaseModel):
 
 class Project(BaseModel):
     title: str
+    description: str = ""              # YouTube description (chapters are added automatically)
+    tags: list[str] = Field(default_factory=list)
     voice: Voice = Voice()
     video: Video = Video()
     beats: list[Beat]
@@ -46,6 +48,20 @@ class Project(BaseModel):
         return v
 
 
-def load_project(path: str | Path) -> Project:
-    data = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
+def parse_project(text: str) -> Project:
+    data = yaml.safe_load(text)
+    if not isinstance(data, dict):
+        raise ValueError("the script must be a YAML mapping with at least 'title' and 'beats'")
     return Project.model_validate(data)
+
+
+def load_project(path: str | Path) -> Project:
+    return parse_project(Path(path).read_text(encoding="utf-8"))
+
+
+def dump_project(project: Project) -> str:
+    data = project.model_dump(mode="json", exclude_defaults=True)
+    data.setdefault("title", project.title)
+    data["beats"] = [b.model_dump(mode="json", exclude_defaults=True) | {"text": b.text, "scene": b.scene}
+                     for b in project.beats]
+    return yaml.safe_dump(data, sort_keys=False, allow_unicode=True, width=100)

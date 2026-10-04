@@ -1,0 +1,20 @@
+{% for f in fields %}
+<label class="field">
+  <span>{{ f.name | replace("_", " ") }}</span>
+  {% if f.kind == "bool" %}
+    <input type="checkbox" name="p.{{ f.name }}" {% if f.value %}checked{% endif %}>
+  {% elif f.kind == "select" %}
+    <select name="p.{{ f.name }}">{% for o in f.options %}<option {% if o == f.value %}selected{% endif %}>{{ o }}</option>{% endfor %}</select>
+  {% elif f.kind == "number" %}
+    <input type="number" step="{{ f.step }}" name="p.{{ f.name }}" value="{{ f.value }}">
+  {% elif f.kind == "textarea" %}
+    <textarea name="p.{{ f.name }}" rows="2">{{ f.value }}</textarea>
+  {% elif f.kind == "list" %}
+    <input name="p.{{ f.name }}" value="{{ f.value }}" placeholder="comma, separated">
+  {% else %}
+    <input name="p.{{ f.name }}" value="{{ f.value }}">
+  {% endif %}
+</label>
+{% else %}
+<p class="muted">This scene has no settings.</p>
+{% endfor %}

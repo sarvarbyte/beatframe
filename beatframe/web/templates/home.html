@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="home">
+  <section class="card new">
+    <h1>New video</h1>
+    <p class="muted">Paste the script exactly as you got it. Beatframe checks it as you type.</p>
+    <form method="post" action="/projects">
+      <textarea name="script" class="code big" spellcheck="false" placeholder="{{ example }}"
+        hx-post="/check" hx-trigger="input changed delay:500ms, load" hx-target="#check">{{ script }}</textarea>
+      <div id="check">{% if error %}{% include "_check.html" %}{% endif %}</div>
+      <div class="row">
+        <button class="btn primary" name="render" value="preview">Create &amp; preview</button>
+        <button class="btn" name="render" value="make">Create &amp; render final</button>
+        <button class="btn ghost" name="render" value="none">Create only</button>
+      </div>
+    </form>
+    <details class="example">
+      <summary>Show an example script</summary>
+      <div class="copywrap"><pre id="ex" class="code">{{ example }}</pre>
+        <button class="btn small" type="button" data-copy="#ex">Copy</button></div>
+      <p class="muted">Scenes you can use:
+        {% for t in templates_list() %}<code title="{{ t.description }}">{{ t.name }}</code>{% if not loop.last %}, {% endif %}{% endfor %}</p>
+    </details>
+  </section>
+
+  <section class="list">
+    <h2>Your videos</h2>
+    {% if not projects %}<p class="muted">Nothing yet. Your first video will appear here.</p>{% endif %}
+    {% for p in projects %}
+      <a class="proj" href="/p/{{ p.slug }}">
+        <div class="t">{{ p.title }}</div>
+        <div class="meta">
+          {{ p.beats }} beats · {{ fmt_time(p.modified) }}
+          {% if p.has_final %}<span class="tag ok">final</span>{% elif p.has_preview %}<span class="tag">preview</span>{% else %}<span class="tag dim">not rendered</span>{% endif %}
+        </div>
+      </a>
+    {% endfor %}
+  </section>
+</div>
+{% endblock %}

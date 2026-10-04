@@ -25,7 +25,25 @@ source .venv/bin/activate
 pip install -e .
 ```
 
-## Use
+## Studio (web app)
+
+```bash
+beatframe web          # opens http://127.0.0.1:8000
+```
+
+Paste a script, watch it render with live progress, edit beats (text, scene, params,
+add / delete / reorder) and re-render only what changed, then publish: download files for
+manual upload, or upload straight to YouTube (title, description with chapters, tags,
+subtitles, thumbnail, visibility, schedule) through the YouTube Data API.
+
+YouTube setup: create a Google Cloud project, enable YouTube Data API v3, add yourself
+as a test user on the OAuth consent screen, create an OAuth client of type **Desktop app**
+and save its JSON as `~/.beatframe/client_secret.json`. Until the project passes YouTube's
+API audit, API uploads are locked to Private.
+
+Built with FastAPI + Jinja + htmx; renders and uploads run on a background worker thread.
+
+## CLI
 
 ```bash
 beatframe templates                              # what scenes exist, and their params
@@ -90,5 +108,5 @@ beatframe/
 projects/touch/touch.yaml   example: opening of the "touch" video
 ```
 
-Roadmap: web app (FastAPI + HTMX + background render queue), 9:16 Shorts export,
+Roadmap: 9:16 Shorts export, AI script planner,
 more templates.

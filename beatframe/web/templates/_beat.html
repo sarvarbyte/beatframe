@@ -1,0 +1,33 @@
+{% set i = b.i %}{% set beat = b.beat %}
+<article class="beat card" id="beat-{{ i }}">
+  <header>
+    <span class="num">{{ i }}</span>
+    <span class="scene">{{ beat.scene }}</span>
+    {% if beat.chapter %}<span class="tag">§ {{ beat.chapter }}</span>{% endif %}
+    <div class="ops">
+      {% for op, label, tip in [("up","↑","Move up"),("down","↓","Move down"),("add","+","Add a beat after this one"),("delete","✕","Delete")] %}
+      <form method="post" action="/p/{{ slug }}/beats/{{ i }}/{{ op }}" {% if op == "delete" %}onsubmit="return confirm('Delete beat {{ i }}?')"{% endif %}>
+        <button class="icon" title="{{ tip }}">{{ label }}</button></form>
+      {% endfor %}
+    </div>
+  </header>
+  <form hx-post="/p/{{ slug }}/beats/{{ i }}" hx-target="#beat-{{ i }}" hx-swap="outerHTML">
+    <label class="field wide"><span>Narration</span>
+      <textarea name="text" rows="2">{{ beat.text }}</textarea></label>
+    <div class="grid2">
+      <label class="field"><span>Scene</span>
+        <select name="scene" hx-get="/p/{{ slug }}/beats/{{ i }}/fields" hx-target="#fields-{{ i }}" hx-trigger="change">
+          {% for t in templates_list() %}<option value="{{ t.name }}" {% if t.name == beat.scene %}selected{% endif %} title="{{ t.description }}">{{ t.name }}</option>{% endfor %}
+        </select></label>
+      <label class="field"><span>Chapter (optional)</span>
+        <input name="chapter" value="{{ beat.chapter or '' }}" placeholder="starts a YouTube chapter"></label>
+    </div>
+    <div class="params" id="fields-{{ i }}">{% with fields = b.fields %}{% include "_fields.html" %}{% endwith %}</div>
+    <div class="row">
+      <button class="btn small" name="action" value="save">Save</button>
+      <button class="btn small primary" name="action" value="preview">Save &amp; preview this beat</button>
+      {% if saved %}<span class="okmsg">✓ {{ saved }}</span>{% endif %}
+    </div>
+    {% if error %}<div class="alert err"><pre>{{ error }}</pre></div>{% endif %}
+  </form>
+</article>

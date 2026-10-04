@@ -1,0 +1,6 @@
+{% if error %}
+<div class="alert err"><strong>The script has a problem</strong><pre>{{ error }}</pre></div>
+{% elif project %}
+{% set words = project.beats | map(attribute="text") | join(" ") | wordcount %}
+<div class="alert ok">✓ {% if saved %}Saved · {% endif %}<strong>{{ project.title }}</strong> — {{ project.beats|length }} beats, about {{ (words / 2.4) | round | int }} s of narration</div>
+{% endif %}

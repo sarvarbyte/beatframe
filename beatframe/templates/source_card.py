@@ -16,11 +16,12 @@ class SourceCard(Template):
         number: str = "13 nm"            # leading number counts up; the rest is the unit
         caption: str = "the smallest wrinkle a fingertip could feel"
         study: str = "Skedung et al., Scientific Reports (2013)"
+        count: bool = True               # false: show the number as written (years, "#1"...)
 
     def build(self, scene, p, duration):
         m = re.match(r"\s*([\d.,]+)\s*(.*)", p.number)
-        target = float(m.group(1).replace(",", "")) if m else None
-        unit = m.group(2) if m else p.number
+        target = float(m.group(1).replace(",", "")) if m and p.count else None
+        unit = m.group(2) if m and p.count else p.number
         decimals = len(m.group(1).split(".")[1]) if m and "." in m.group(1) else 0
 
         tracker = ValueTracker(0)
