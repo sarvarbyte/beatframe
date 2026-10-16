@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% from "_ui.html" import icon, head, tinyproject %}
+{% block body %}
+{% if mode == "create" %}
+<div class="hero sweep">
+  <div style="position:relative;z-index:2">
+    <div class="eyebrow">YOUR CREATIVE WORKSPACE</div>
+    <h1>Every great video<br>starts with an idea<i>.</i></h1>
+    <p>Write a script. Animate every beat. Review with AI.<br>All the way to YouTube, in one focused studio.</p>
+    <span class="pill purple">{{ icon("spark") }} From words to wonder</span>
+  </div>
+  <div class="heromotif">{{ icon("play") }}</div>
+</div>
+{% call head("START CREATING", "Create a new video", "Give your idea a name, choose a format and drop in your beat-by-beat script.") %}{% endcall %}
+{% else %}
+{% call head("BRING YOUR OWN VIDEO", "Import a finished video", "Already made a video in Gemini or CapCut? Get the same AI review and publishing tools.") %}
+  <a class="btn ghost" href="/projects">My projects</a>
+{% endcall %}
+{% endif %}
+
+<nav class="screen-tabs">
+  <a href="/" class="{{ 'active' if mode == 'create' }}">{{ icon("spark") }} Create with Beatframe</a>
+  <a href="/?mode=import" class="{{ 'active' if mode == 'import' }}">{{ icon("upload") }} Import finished video</a>
+</nav>
+
+<div class="grid2">
+  {% if mode == "import" %}
+  <form class="card cardpad" method="post" action="/import" enctype="multipart/form-data" id="importForm">
+    <div class="step-title"><span class="number">1</span><h3>Video file</h3></div>
+    <label class="drop" id="drop">
+      <input type="file" name="video" accept="video/mp4,video/quicktime,video/webm,video/x-matroska,.mp4,.mov,.webm,.mkv" required>
+      <div class="dropicon">{{ icon("upload") }}</div>
+      <h2 id="drop-name">Drop your finished video here</h2>
+      <p>MP4, MOV, WebM or MKV · Short and Long supported</p>
+      <span class="btn primary">Browse files</span>
+      <div class="hint">The format is detected from the video itself.</div>
+    </label>
+    <div class="divider"></div>
+    <div class="step-title"><span class="number">2</span><h3>Import card · YAML</h3></div>
+    <textarea name="card" id="f-card" class="code big" spellcheck="false" placeholder="{{ card_example }}"
+      hx-post="/check-import" hx-trigger="input changed delay:500ms, load" hx-target="#check-card" required>{{ card }}</textarea>
+    <div class="editor-foot">
+      <span class="hint" style="margin:0">Title, description, tags, the voiceover script and, for long videos, chapters.</span>
+      <button class="linkbtn" type="button" onclick="useCardExample()">Use example ↗</button>
+    </div>
+    <div id="check-card">{% if error %}<div class="alert err"><strong>Import failed</strong><pre>{{ error }}</pre></div>{% endif %}</div>
+    <div class="divider"></div>
+    <button class="btn primary wide big sweep" type="submit" id="importBtn">{{ icon("upload") }} Import video {{ icon("arrow") }}</button>
+    <p class="hint" style="text-align:center;margin-top:13px">Next: Review with AI → refine → publish</p>
+  </form>
+  {% else %}
+  <form class="card cardpad" method="post" action="/projects" id="createForm">
+    <div class="row"><h2>Project setup</h2><span class="pill purple">NEW</span></div>
+    <div class="divider"></div>
+
+    <div class="step-title"><span class="number">1</span><h3>Project details</h3></div>
+    <label class="field"><span>Project name <em>· optional, taken from the script's title if empty</em></span>
+      <div class="with-count"><input name="title" id="f-title" maxlength="100" value="{{ title }}" placeholder="The Science of Touch">
+        <span class="count" data-count="#f-title" data-max="100"></span></div></label>
+    <div class="divider"></div>
+
+    <div class="step-title"><span class="number">2</span><h3>Choose a format</h3></div>
+    <div class="formats" role="radiogroup" aria-label="Video format">
+      {% for f in formats %}
+      <label class="format-card">
+        <input type="radio" name="format" value="{{ f.name }}" {% if f.name == fmt %}checked{% endif %}>
+        <span class="shape {{ f.name }}"></span>
+        <span><b>{{ f.label }}<em>{{ f.aspect }}</em></b><small>{{ f.width }} × {{ f.height }} · {{ "Vertical: Shorts, Reels, TikTok" if f.name == "short" else "Landscape: YouTube, documentaries" }}</small></span>
+        <span class="tick">{{ icon("check") }}</span>
+      </label>
+      {% endfor %}
+    </div>
+    <div class="divider"></div>
+
+    <div class="row" style="margin-bottom:14px"><div class="step-title" style="margin:0"><span class="number">3</span><h3>Your script</h3></div><span class="count" data-count="#f-script"></span></div>
+    <textarea name="script" id="f-script" class="code big" spellcheck="false" placeholder="{{ example }}"
+      hx-post="/check" hx-trigger="input changed delay:500ms, load" hx-target="#check">{{ script }}</textarea>
+    <div id="check">{% if error %}{% include "_check.html" %}{% endif %}</div>
+    <div class="editor-foot">
+      <details class="adv">
+        <summary>{{ icon("gear") }} Advanced settings {{ icon("chev") }}</summary>
+        <div class="adv-body">
+          <span class="fieldlabel">After creating</span>
+          <div class="choices">
+            {% for v, lab, hint in [("preview", "Render a preview", "480p, about a minute"), ("make", "Render the final", "full quality + captions"), ("none", "Only create it", "edit beats first")] %}
+            <label class="choice"><input type="radio" name="render" value="{{ v }}" {% if render == v %}checked{% endif %}><b>{{ lab }}</b><small>{{ hint }}</small></label>
+            {% endfor %}
+          </div>
+        </div>
+      </details>
+      <button class="linkbtn" type="button" onclick="useExample()">Use example ↗</button>
+    </div>
+    <div class="divider"></div>
+    <button class="btn primary wide big sweep" type="submit">{{ icon("spark") }} Generate video {{ icon("arrow") }}</button>
+  </form>
+  {% endif %}
+
+  <aside class="stack">
+    {% if mode == "import" %}
+    <div class="spotlight">
+      <div class="eyebrow">YOUR CREATION. YOUR CONTROL.</div>
+      <h3>Already made it?<br>Let's make it better.</h3>
+      <p>Bring a video from Google Gemini, CapCut or anywhere else into the same review and publish flow.</p>
+      <div class="tags"><span class="tag">Gemini</span><span class="tag">CapCut</span><span class="tag">Premiere</span><span class="tag">Other</span></div>
+    </div>
+    {% else %}
+    <section class="card cardpad">
+      <div class="cardhead" style="margin-bottom:6px"><h3>What happens next</h3><span class="pill purple">5 steps</span></div>
+      <div class="nextlist" style="margin-top:14px">
+        {% for n, t, x in [("01", "Script", "We check your story and its hook."), ("02", "Preview", "Quick 480p animation with voice."), ("03", "AI review", "Understand what to fix, beat by beat."), ("04", "Final", "Render the full 1080p video."), ("05", "Publish", "Straight to YouTube, or download.")] %}
+        <div class="flex"><span class="number">{{ n }}</span><div><b>{{ t }}</b><div class="meta" style="margin-top:3px">{{ x }}</div></div></div>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+    <section class="card cardpad">
+      <div class="cardhead" style="margin-bottom:8px"><h3>Recent projects</h3>{% if total > 5 %}<a class="linkbtn" href="/projects">View all ↗</a>{% endif %}</div>
+      {% if not projects %}<div class="empty-s"><div class="glowdot"></div><p>Nothing yet. Your first video will appear here.</p></div>{% endif %}
+      {% for p in projects %}{{ tinyproject(p) }}{% endfor %}
+    </section>
+  </aside>
+</div>
+
+<textarea id="example" hidden>{{ example }}</textarea>
+<textarea id="card-example" hidden>{{ card_example }}</textarea>
+<script>
+  // the script can say `video: {format: short}`: follow it unless a format was picked by hand
+  let pickedByHand = false;
+  document.querySelectorAll('#createForm input[name="format"]').forEach(r => r.addEventListener("click", () => pickedByHand = true));
+  document.body.addEventListener("htmx:afterSettle", () => {
+    const tag = document.querySelector("#check [data-script-format]");
+    if (!tag || pickedByHand) return;
+    const r = document.querySelector(`#createForm input[name="format"][value="${tag.dataset.scriptFormat}"]`);
+    if (r && !r.checked) r.checked = true;
+  });
+  function fillFrom(src, dst) {
+    const t = document.getElementById(dst);
+    t.value = document.getElementById(src).value;
+    t.dispatchEvent(new Event("input", { bubbles: true }));
+    t.focus();
+  }
+  function useExample() { fillFrom("example", "f-script"); }
+  function useCardExample() { fillFrom("card-example", "f-card"); }
+  // import: show the chosen file, accept drag and drop, say it is working while it uploads
+  const drop = document.getElementById("drop");
+  if (drop) {
+    const input = drop.querySelector("input");
+    const show = () => { const f = input.files[0];
+      document.getElementById("drop-name").textContent = f ? `${f.name} · ${(f.size / 1048576).toFixed(1)} MB` : "Drop your finished video here";
+      drop.classList.toggle("has", !!f); };
+    input.addEventListener("change", show);
+    ["dragenter", "dragover"].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.add("over"); }));
+    ["dragleave", "drop"].forEach(e => drop.addEventListener(e, () => drop.classList.remove("over")));
+    drop.addEventListener("drop", ev => { ev.preventDefault(); input.files = ev.dataTransfer.files; show(); });
+    document.getElementById("importForm").addEventListener("submit", () => {
+      const b = document.getElementById("importBtn"); b.disabled = true; b.textContent = "Importing… (large videos take a moment)"; });
+  }
+</script>
+{% endblock %}

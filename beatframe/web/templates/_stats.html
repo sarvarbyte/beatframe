@@ -1,0 +1,9 @@
+{% if error %}<div class="alert err" style="margin:0 0 16px">{{ error }}</div>{% endif %}
+{% if last and last.text %}
+<section class="card cardpad">
+  <div class="cardhead"><div><h2>Channel performance report</h2><p>One structured text block, ready to paste into Claude for your next analysis · {{ last.when }}</p></div>
+    <button class="btn primary small" type="button" data-copy="#stats-text">⧉ Copy report</button></div>
+  <textarea id="stats-text" class="report" readonly rows="18">{{ last.text }}</textarea>
+  <p class="hint">Thumbnail impressions and CTR are not available through YouTube's API; add them from Studio when you need them.</p>
+</section>
+{% endif %}

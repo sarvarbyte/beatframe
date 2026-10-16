@@ -1,0 +1,51 @@
+# Demo of all 15 bright (stick-figure) templates. Open it in Studio and press Render preview.
+# Every scene here also works in Long: switch the format at the top of the project page.
+title: "Why You Forget Why You Walked Into a Room"
+voice: {provider: edge, name: en-US-AndrewNeural, rate: "-5%"}
+video: {format: short, fps: 30}   # change to long for 16:9
+beats:
+  - text: "Why do you forget why you walked into a room? It happens to everyone."
+    scene: question_hook
+    params: {question: "Why do you forget why you walked into a room?", highlight: forget}
+  - text: "You walk into the kitchen and freeze. Why did you come in here again?"
+    scene: stick_scene
+    params: {setting: kitchen, action: freeze, bubble: question, caption: "Why did I come in here?"}
+  - text: "A doorway tells your brain that this chapter is over and a new one starts."
+    scene: stick_doorway
+    params: {left_label: kitchen, right_label: living room, caption: "The doorway effect"}
+  - text: "People who walked through a door forgot more than people who stayed in the same room."
+    scene: stick_compare
+    params: {title: "Notre Dame study", left_label: through a door, right_label: same room}
+  - text: "Wait, why did I come in here? Your brain closed the chapter on you."
+    scene: stick_talk
+    params: {lines: ["Wait, why did I come in here?", "Your brain closed the chapter.", "Rude."], setting: outdoor}
+  - text: "Roughly one in ten people say this happens to them every single day of the week."
+    scene: stick_crowd
+    params: {total: 10, highlight: 1, caption: "1 in 10 people", title: "Every single day"}
+  - text: "Your brain predicts about seventy percent of what you feel before it even arrives."
+    scene: stat_pop
+    params: {number: "70%", caption: "of what you feel is predicted", source: "illustrative number", icon: brain}
+  - text: "Three things set your body clock: light, rhythm and a hormone called melatonin."
+    scene: icon_list
+    params: {title: "Your body clock", items: ["sun|Light", "clock|Rhythm", "moon|Melatonin"]}
+  - text: "Humans appeared three hundred thousand years ago, farms ten thousand years ago and light bulbs in 1879."
+    scene: timeline
+    params: {title: "Human nights", events: ["300,000 BC|First humans", "10,000 BC|First farms", "1879|Light bulb"]}
+  - text: "Babies sleep sixteen hours, teenagers nine and adults about seven."
+    scene: bar_chart
+    params: {title: "Hours of sleep", labels: [Babies, Teens, Adults], values: [16, 9, 7], unit: h, highlight: 1}
+  - text: "Myth: you only use ten percent of your brain. Fact: you use almost all of it."
+    scene: myth_fact
+    params: {myth: "You only use 10% of your brain", fact: "You use almost all of it, just not all at once"}
+  - text: "Your brain deletes the old room to make space for the new one."
+    scene: kinetic_text
+    params: {text: "Your brain deletes the old room to make space for the new one", highlight: "deletes, room, new"}
+  - text: "The feeling starts in your stomach, long before you notice it yourself."
+    scene: body_map
+    params: {part: stomach, label: "your gut", caption: "100 million nerve cells live here"}
+  - text: "Daylight resets your body clock, which releases melatonin, which makes you sleep."
+    scene: process_cycle
+    params: {title: "The sleep loop", steps: ["sun|Daylight", "clock|Body clock", "moon|Melatonin", "zzz|Sleep"]}
+  - text: "The front of your brain does the planning and the deciding for you."
+    scene: brain_light
+    params: {region: front, label: "planning & decisions", caption: "the prefrontal cortex"}

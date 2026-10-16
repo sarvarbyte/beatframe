@@ -1,0 +1,82 @@
+{% from "_ui.html" import icon %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Beatframe Studio{% endblock %}</title>
+  <link rel="icon" href="/static/icon.png">
+  <link rel="stylesheet" href="/static/style.css?v=20">
+  <script src="/static/htmx.min.js"></script>
+</head>
+<body>
+<div class="app">
+  <div class="navscrim" onclick="document.body.classList.remove('menu-open')"></div>
+  <aside class="side" id="side">
+    <a class="logo" href="/"><span class="logotile">{{ icon("play") }}</span>Beatframe</a>
+    <div class="navcaption">WORKSPACE</div>
+    <nav class="nav">
+      {% for key, href, label in [("studio", "/", "Studio"), ("projects", "/projects", "Projects"), ("stats", "/stats", "Stats"),
+                                  ("templates", "/templates", "Templates"), ("settings", "/settings", "Settings")] %}
+      <a href="{{ href }}" class="{{ 'active' if nav == key }}">{{ icon(key) }}{{ label }}{% if key == "projects" %}<span class="navcount">{{ "%02d" | format(project_count) }}</span>{% endif %}</a>
+      {% endfor %}
+    </nav>
+    <div class="side-bottom">
+      <div class="side-spot">
+        <b>Make the invisible<br>unforgettable.</b>
+        <span>Your creative engine, from first word to final frame.</span>
+        <a href="/">Start creating →</a>
+      </div>
+      <a class="identity" href="/settings">
+        <span class="avatar">HU</span>
+        <span><b>Human Unknowns</b>
+          {% if yt_connected() %}<small><span class="dot"></span>YouTube connected</small>
+          {% else %}<small class="off"><span class="dot off"></span>Local studio · v{{ version }}</small>{% endif %}</span>
+      </a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="flex">
+        <button class="mobile-menu" type="button" aria-label="Menu" onclick="document.body.classList.toggle('menu-open')">
+          <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+        <div class="breadcrumb">WORKSPACE <span>/</span> <b>{{ crumb or "Studio" }}</b></div>
+      </div>
+      <div class="topright">
+        {% if busy_job %}
+        <span class="topstatus"><span class="dot busy"></span><span class="lbl">{{ "Uploading" if busy_job.kind == "upload" else "Reviewing" if busy_job.kind == "review" else "Rendering" }}</span><a href="/p/{{ busy_job.slug }}">{{ (busy_job.progress * 100) | round | int }}%</a></span>
+        {% else %}
+        <span class="topstatus"><span class="dot"></span><span class="lbl">Studio is ready</span></span>
+        {% endif %}
+        <a class="avatar sm" href="/settings" title="Human Unknowns">HU</a>
+      </div>
+    </div>
+    <div class="content">
+      {% block body %}{% endblock %}
+      <div class="footerline">Beatframe Studio v{{ version }} · Built for Human Unknowns</div>
+    </div>
+  </main>
+</div>
+<script>
+  // copy buttons: <button data-copy="#id">
+  document.addEventListener("click", e => {
+    const b = e.target.closest("[data-copy]");
+    if (!b) return;
+    const el = document.querySelector(b.dataset.copy);
+    navigator.clipboard.writeText(el.value ?? el.textContent);
+    const t = b.innerHTML; b.textContent = "Copied"; setTimeout(() => b.innerHTML = t, 1200);
+  });
+  // character counters: <span data-count="#id" data-max="100">
+  function counters() {
+    document.querySelectorAll("[data-count]").forEach(c => {
+      const el = document.querySelector(c.dataset.count);
+      if (!el || el._counted) return; el._counted = true;
+      const upd = () => c.textContent = `${el.value.length}${c.dataset.max ? "/" + c.dataset.max : ""}`;
+      el.addEventListener("input", upd); upd();
+    });
+  }
+  document.addEventListener("DOMContentLoaded", counters);
+  document.addEventListener("htmx:afterSettle", counters);
+</script>
+</body>
+</html>

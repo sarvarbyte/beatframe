@@ -1,0 +1,17 @@
+# Example: an animated war-history channel (old-map look). beatframe profile use war-maps
+channel: War Maps
+colors:
+  background: "#1b1a17"
+  background_dark: "#100f0d"
+  text: "#efe4c8"
+  light: "#d9a441"
+  accent: "#b8322a"
+  muted: "#7d7461"
+fonts:
+  title: Playfair Display
+  body: Figtree
+music_mood: epic
+voice: kokoro bm_george
+image_style: >-
+  historical oil painting style, muted parchment and iron tones, dramatic overcast light,
+  wide battlefield composition, no text, no watermark

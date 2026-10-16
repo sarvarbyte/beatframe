@@ -1,0 +1,6 @@
+{% if error %}
+<div class="alert err"><strong>The card has a problem</strong><pre>{{ error }}</pre></div>
+{% elif project %}
+<div class="banner ok">✓ Valid import card · <strong>{{ project.title }}</strong> · {{ project.video.spec.label }} {{ project.video.spec.aspect }}{% if project.made_with %} · made with {{ project.made_with }}{% endif %} · {{ project.script | wordcount }} words of script{% if project.tags %} · {{ project.tags | length }} tags{% endif %}</div>
+{% if not project.script.strip() %}<div class="alert warn">No <code>script</code>: the AI review works better when it knows the voiceover.</div>{% endif %}
+{% endif %}

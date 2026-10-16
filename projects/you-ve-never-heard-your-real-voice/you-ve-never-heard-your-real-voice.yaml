@@ -1,0 +1,71 @@
+title: You've Never Heard Your Real Voice
+description: 'You have never heard your voice the way everyone else hears it. Plug your ears and hum:
+  it gets louder, because the sound is travelling through your skull. Your bones add a deep bass that
+  only you can hear. The recording that sounds wrong? That is your real voice.
+
+
+  Did it get louder when you plugged your ears? Yes or no?
+
+
+  Based on bone conduction: you hear your own voice through air and through your skull, which boosts low
+  frequencies.
+
+  '
+tags:
+- human body
+- hearing
+- voice
+- brain
+- perception
+- psychology
+- shorts
+video:
+  format: short
+beats:
+- text: You've never heard your real voice.
+  scene: stick_scene
+  params:
+    setting: plain
+    action: freeze
+    bubble: phone
+    caption: You've never heard your real voice
+  pad: 0.2
+  min_duration: 1.8
+- text: That's why recordings sound so wrong.
+  scene: kinetic_text
+  params:
+    text: Recordings sound wrong
+    highlight: wrong
+  pad: 0.2
+- text: Try it. Plug your ears and hum.
+  scene: kinetic_text
+  params:
+    text: Plug your ears. Hum.
+    highlight: plug, hum
+  pad: 0.6
+- text: Louder, right? That sound is travelling through your skull.
+  scene: body_map
+  params:
+    part: ears
+    label: sound through your skull
+    caption: You hear through your bones
+  pad: 0.2
+- text: Your bones add a deep bass only you can hear.
+  scene: brain_light
+  params:
+    region: left
+    label: extra bass only you hear
+    caption: Your brain gets a different voice
+  pad: 0.2
+- text: The voice on the recording? That's the one everyone hears.
+  scene: kinetic_text
+  params:
+    text: Everyone hears THAT voice
+    highlight: that
+  pad: 0.3
+- text: What else isn't what it seems?
+  scene: statement
+  params:
+    text: What else isn't what it seems?
+    highlight: seems
+    motif: orb

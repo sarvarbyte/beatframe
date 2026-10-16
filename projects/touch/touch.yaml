@@ -1,0 +1,37 @@
+# Opening of the long video. Render a quick look with:
+#   beatframe preview projects/touch/touch.yaml
+title: "You Never Touched Anything. So What Are You Feeling?"
+
+voice:
+  provider: edge             # edge | files | silent
+  name: en-US-AndrewNeural   # calm male voice; try en-US-BrianNeural too
+  rate: "-5%"
+
+video: {width: 1920, height: 1080, fps: 30}
+
+beats:
+  - text: "You have never touched anything. Not your phone. Not the chair you're sitting on. Not another person."
+    scene: title_card
+    chapter: "You've never touched anything"
+    params: {line1: "YOU HAVE NEVER", line2: "TOUCHED ANYTHING"}
+
+  - text: "To see why, we need to fall into your fingertip. Past the ridges of your fingerprint, past your skin cells, all the way down to the atoms."
+    scene: scale_zoom
+    chapter: "Falling into your fingertip"
+    params: {levels: [fingertip, skin, cells, atoms]}
+
+  - text: "Your atoms and the table's atoms are wrapped in clouds of electrons. And electrons push each other away. The closer they get, the harder they push."
+    scene: electron_repulsion
+    params: {gap_label: "never zero"}
+
+  - text: "So what you call touch is not contact. It is a push you feel from a distance."
+    scene: statement
+    params: {text: "Touch is not contact. It is a push you feel from a distance.", highlight: "push"}
+
+  - text: "And yet that push is incredibly precise. In 2013, researchers in Stockholm found that a fingertip can tell apart surfaces whose wrinkles are just 13 nanometres tall."
+    scene: source_card
+    chapter: "How sensitive touch really is"
+    params:
+      number: "13 nm"
+      caption: "the smallest wrinkle a fingertip could feel"
+      study: "Skedung et al., Scientific Reports (2013)"

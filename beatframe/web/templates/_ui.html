@@ -1,0 +1,65 @@
+{# Shared pieces: icons, page head, project workflow steps and tabs. #}
+{% macro icon(name) -%}
+{%- set p = {
+  "studio": '<rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 13l3 3 5-6"/>',
+  "projects": '<path d="M3 6h6l2 3h10v11H3z"/>',
+  "stats": '<path d="M4 20V9M10 20V4M16 20v-7M22 20V8"/>',
+  "templates": '<rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/>',
+  "settings": '<circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3M5 5l2 2m10 10 2 2M19 5l-2 2M7 17l-2 2"/>',
+  "play": '<path d="M8 5.5v13l10.5-6.5z" class="fill"/>',
+  "eye": '<path d="M2.5 12s3.5-6.5 9.5-6.5S21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.5"/>',
+  "download": '<path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/>',
+  "upload": '<path d="M12 16V4M7 8.5l5-5 5 5M5 20h14"/>',
+  "spark": '<path d="M12 3.5l2.2 5.3 5.3 2.2-5.3 2.2L12 18.5l-2.2-5.3L4.5 11l5.3-2.2z"/>',
+  "refresh": '<path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/>',
+  "arrow": '<path d="M5 12h14M13 6l6 6-6 6"/>',
+  "back": '<path d="M19 12H5M11 6l-6 6 6 6"/>',
+  "check": '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  "plus": '<path d="M12 5v14M5 12h14"/>',
+  "copy": '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8"/>',
+  "video": '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3" class="fill"/>',
+  "beats": '<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 9h16M4 14h16"/>',
+  "code": '<path d="m8 8-4 4 4 4M16 8l4 4-4 4"/>',
+  "send": '<path d="M7 17 17 7M9 7h8v8"/>',
+  "yt": '<rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="m10 9 5 3-5 3z" class="fill"/>',
+  "gear": '<circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/>',
+  "chev": '<path d="m6 9 6 6 6-6"/>',
+} -%}
+<svg viewBox="0 0 24 24" aria-hidden="true">{{ p.get(name, p["spark"]) | safe }}</svg>
+{%- endmacro %}
+
+{% macro head(eyebrow, title, sub="") -%}
+<header class="pagehead">
+  <div><div class="eyebrow">{{ eyebrow }}</div><h1>{{ title }}</h1>{% if sub %}<p class="subtitle">{{ sub | safe }}</p>{% endif %}</div>
+  <div class="actions">{{ caller() if caller else "" }}</div>
+</header>
+{%- endmacro %}
+
+{% macro steps(flow) -%}
+<div class="steps" aria-label="Workflow">
+  {% for s in flow.steps %}
+  <div class="step {{ s.state }}">
+    <span class="stepcircle">{% if s.state == "done" %}✓{% else %}{{ loop.index }}{% endif %}</span>
+    <span class="lab"><b>{{ s.label }}</b><small>{{ s.detail }}</small></span>
+    {% if not loop.last %}<i class="step-line"></i>{% endif %}
+  </div>
+  {% endfor %}
+</div>
+{%- endmacro %}
+
+{% macro status_pill(p) -%}
+{% if p.rendering %}<span class="pill purple live"><i class="pulse"></i>Rendering</span>
+{% elif p.broken %}<span class="pill red">Script error</span>
+{% elif p.has_final %}<span class="pill green">Completed</span>
+{% elif p.imported %}<span class="pill purple">Imported</span>
+{% elif p.has_preview %}<span class="pill purple">Preview</span>
+{% else %}<span class="pill gray">Draft</span>{% endif %}
+{%- endmacro %}
+
+{% macro tinyproject(p) -%}
+<a href="/p/{{ p.slug }}" class="tinyproject">
+  <span class="thumb {{ p.fmt }}">{% if p.thumb %}<img src="/files/{{ p.thumb }}" alt="" loading="lazy">{% endif %}</span>
+  <span style="min-width:0"><b>{{ p.title }}</b><small>{{ "Short" if p.fmt == "short" else "Long" }}{% if p.duration %} · {{ fmt_secs(p.duration) }}{% endif %}{% if p.beats %} · {{ p.beats }} beats{% endif %}</small></span>
+  {{ status_pill(p) }}
+</a>
+{%- endmacro %}

@@ -1,0 +1,11 @@
+{% if error %}
+<div class="alert err"><strong>The script has a problem</strong><pre>{{ error }}</pre></div>
+{% elif project %}
+{% set words = project.beats | map(attribute="text") | join(" ") | wordcount %}
+<div class="banner ok">✓ {% if saved %}Saved · {% endif %}<strong>{{ project.title }}</strong> · {{ project.beats | length }} beats · about {{ (words / 2.4) | round | int }} s · {{ project.video.spec.label }} {{ project.video.spec.aspect }}</div>
+{% if issues %}<div class="alert {% if issues | map('first') | select('equalto', '✗') | list %}err{% else %}warn{% endif %}"><strong>Pre-render check</strong> · fix these before rendering<ul class="tips">{% for t in issues %}<li>{{ t }}</li>{% endfor %}</ul></div>{% endif %}
+{% if errors %}<div class="alert warn"><strong>Custom scenes that fell back in the last render</strong> · copy this to Claude to fix the code<pre>{{ errors }}</pre></div>{% endif %}
+{% if pictures %}<div class="alert warn"><strong>Pictures to make</strong> · generate them, save under these names in the project folder<pre>{{ pictures }}</pre></div>{% endif %}
+{% if tips %}<div class="alert warn"><strong>Retention tips</strong> · the script still renders<ul class="tips">{% for t in tips %}<li>{{ t }}</li>{% endfor %}</ul></div>{% endif %}
+{% endif %}
+{% if project and ("format" in project.video.model_fields_set or project.video.width) %}<span data-script-format="{{ project.video.format }}" hidden></span>{% endif %}

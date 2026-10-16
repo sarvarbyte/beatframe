@@ -1,0 +1,18 @@
+# Human Unknowns — the default 'One Light' look (the same values as brand.py).
+# Copy to ../profile.yaml (beatframe profile use human-unknowns) only if you want it written out.
+channel: Human Unknowns
+colors:
+  background: "#0c1729"
+  background_dark: "#08101e"
+  text: "#f5eedb"
+  light: "#fbaa58"
+  accent: "#f08034"
+  muted: "#5a6b88"
+fonts:
+  title: Playfair Display
+  body: Figtree
+music_mood: wonder
+voice: kokoro am_michael
+image_style: >-
+  cinematic documentary still, soft volumetric light, deep navy and warm amber tones,
+  shallow depth of field, no text, no watermark

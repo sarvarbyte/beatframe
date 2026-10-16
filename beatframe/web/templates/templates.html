@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% from "_ui.html" import icon, head %}
+{% block title %}Templates · Beatframe{% endblock %}
+{% block body %}
+{% call head("MOTION SYSTEM", "Scene templates", "Every scene is a building block. Put its name in <code>scene:</code> and its settings in <code>params:</code>.") %}
+  <a class="btn primary" href="/">Start a project</a>
+{% endcall %}
+{% set all = templates_list() %}
+<div class="row" style="margin-bottom:19px">
+  <div class="flex"><span class="pill purple">{{ icon("spark") }} Scene catalogue</span><span class="meta">{{ all | length }} scenes</span></div>
+  <span class="meta">{{ all | selectattr("short_native") | list | length }} drawn for Shorts · the rest fitted into 9:16</span>
+</div>
+<div class="scene-grid">
+  {% for t in all %}
+  <article class="card scene-card">
+    <div class="scene-thumb">{% if t.name in thumbs %}<img src="/static/scenes/{{ t.name }}.png" alt="" loading="lazy">{% endif %}</div>
+    <div class="row"><h3 class="mono">{{ t.name }}</h3>
+      {% if t.short_native %}<span class="pill purple" title="Lays itself out for 9:16">Short-ready</span>{% else %}<span class="pill gray" title="Drawn for 16:9; fitted into the vertical frame in Shorts">16:9</span>{% endif %}</div>
+    <p class="meta">{{ t.description }}</p>
+    <div class="tags">{% for f in t.fields %}<span class="tag" title="default: {{ f.value if f.value not in (None, '') else '—' }}">{{ f.name }}</span>{% else %}<span class="tag">no settings</span>{% endfor %}</div>
+  </article>
+  {% endfor %}
+</div>
+{% endblock %}

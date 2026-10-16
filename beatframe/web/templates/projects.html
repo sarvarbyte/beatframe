@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% from "_ui.html" import icon, head %}
+{% block title %}Projects · Beatframe{% endblock %}
+{% block body %}
+{% call head("YOUR VIDEO LIBRARY", "My projects", "Every experiment, every draft, every finished story, all in one place.") %}
+  <a class="btn primary" href="/">{{ icon("plus") }} New project</a>
+{% endcall %}
+
+<div class="grid3" style="margin-bottom:22px">
+  <div class="chic-stat"><span>All projects</span><b>{{ "%02d" | format(summary.total) }}</b>
+    <small>{{ summary.total - summary.drafts }} videos{% if summary.drafts %} + {{ summary.drafts }} draft{{ "s" if summary.drafts > 1 }}{% endif %}</small></div>
+  <div class="chic-stat"><span>Ready for YouTube</span><b>{{ "%02d" | format(summary.finals) }}</b>
+    <small>{{ summary.live }} live on the channel</small></div>
+  <div class="chic-stat"><span>Average AI review</span>
+    {% if summary.avg is not none %}<b>{{ summary.avg }} <em>/10</em></b><small>Across {{ summary.reviewed }} reviewed project{{ "s" if summary.reviewed != 1 }}</small>
+    {% else %}<b>—</b><small class="dim">Run an AI review on a project</small>{% endif %}</div>
+</div>
+
+<section class="card">
+  <div class="cardpad" style="padding-bottom:18px">
+    <div class="cardhead" style="margin-bottom:16px"><div><h2>Video library</h2><p>Click a video to open it. Each one is a folder in <code>projects/</code>.</p></div>
+      <span class="pill purple">{{ projects | length }} video{{ "s" if projects | length != 1 }}</span></div>
+    {% set n_done = projects | selectattr("has_final") | list | length %}
+    {% set n_prev = projects | rejectattr("has_final") | selectattr("has_preview") | list | length %}
+    {% set n_imp = projects | selectattr("imported") | list | length %}
+    <div class="filterbar" role="tablist">
+      {% for key, label, n in [("all", "All", projects | length), ("completed", "Completed", n_done), ("preview", "Previews", n_prev), ("draft", "Drafts", projects | length - n_done - n_prev), ("imported", "Imported", n_imp)] %}
+      {% if n or key == "all" %}<button type="button" class="filter {{ 'active' if key == 'all' }}" data-filter="{{ key }}">{{ label }}<span>{{ n }}</span></button>{% endif %}
+      {% endfor %}
+    </div>
+  </div>
+  {% if not projects %}
+  <div class="empty"><div class="glowdot"></div><h2>Start your first project</h2><p>Paste a script on the Studio page and your first video starts rendering.</p><a class="btn primary" href="/">Create a video</a></div>
+  {% else %}
+  <div class="tablehead"><span>Project</span><span>Format</span><span>AI score</span><span>Workflow status</span><span>Publishing</span></div>
+  <div id="plist">
+    {% for p in projects %}
+    {% set st = "completed" if p.has_final else "preview" if p.has_preview else "draft" %}
+    <a class="project-row" href="/p/{{ p.slug }}" data-status="{{ st }}" data-imported="{{ 1 if p.imported else 0 }}">
+      <div class="titleblock">
+        <span class="thumb {{ p.fmt }}">{% if p.thumb %}<img src="/files/{{ p.thumb }}" alt="" loading="lazy">{% endif %}</span>
+        <span style="min-width:0"><b>{{ p.title }}</b><small>{{ ago(p.modified) }}{% if p.duration %} · {{ fmt_secs(p.duration) }}{% endif %}{% if p.beats %} · {{ p.beats }} beats{% elif p.imported %} · imported{% endif %}</small></span>
+      </div>
+      <div><span class="pill {{ 'purple' if p.fmt == 'short' else 'gray' }}">{{ "Short" if p.fmt == "short" else "Long" }}</span></div>
+      <div class="mini-score {{ 'none' if p.score is none }}">{{ p.score ~ "/10" if p.score is not none else "—" }}</div>
+      <div class="wf">{% from "_ui.html" import status_pill %}{{ status_pill(p) }}</div>
+      <div class="livecell {{ 'on' if p.live }}">{% if p.live %}✓ Published{% if p.live.views is not none and p.live.views is defined %}<small> · {{ "{:,}".format(p.live.views | int) }} views</small>{% endif %}{% else %}Not published{% endif %}</div>
+    </a>
+    {% endfor %}
+  </div>
+  <p class="empty-filter hint" style="padding:0 22px 18px" hidden>Nothing here.</p>
+  {% endif %}
+</section>
+<script>
+  document.querySelectorAll("[data-filter]").forEach(b => b.onclick = () => {
+    document.querySelectorAll("[data-filter]").forEach(x => x.classList.toggle("active", x === b));
+    let n = 0;
+    document.querySelectorAll("#plist .project-row").forEach(r => {
+      const f = b.dataset.filter;
+      const show = f === "all" || (f === "imported" ? r.dataset.imported === "1" : r.dataset.status === f);
+      r.hidden = !show; n += show;
+    });
+    document.querySelector(".empty-filter").hidden = n > 0;
+  });
+</script>
+{% endblock %}

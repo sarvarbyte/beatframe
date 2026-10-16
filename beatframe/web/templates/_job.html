@@ -1,0 +1,74 @@
+<div id="job" class="job"
+  {% if job and job.status in ("queued", "running") %}hx-get="/p/{{ slug }}/job" hx-trigger="every 1s" hx-swap="outerHTML"{% endif %}>
+{% if job %}
+  {% set pct = (job.progress * 100) | round | int %}
+  {% set what = {"upload": ("Upload", "Uploaded", "Uploading to YouTube…"),
+                 "review": ("AI review", "AI review ready", "The AI is reviewing the video…")}.get(job.kind, ("Render", "Video generated", "Generating your video…")) %}
+  <section class="card cardpad">
+    <div class="job-top">
+      <div class="job-title">
+        {% if job.status in ("queued", "running") %}<span class="spin"></span>
+        {% elif job.status == "done" %}<span class="okmark"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>
+        {% else %}<span class="errmark">✕</span>{% endif %}
+        <div>
+          <h3>{% if job.status == "failed" %}{{ what[0] }} failed{% elif job.status == "done" %}{{ what[1] }}{% elif job.status == "queued" %}Waiting in queue{% else %}{{ what[2] }}{% endif %}</h3>
+          <small>{{ job.label }}</small>
+        </div>
+      </div>
+      <b class="pct">{{ pct }}%</b>
+    </div>
+    <div class="bar {{ job.status }}"><i style="width: {{ 100 if job.status == 'failed' else pct }}%"></i></div>
+
+    {% if job.is_render %}
+    <div class="job-now">
+      <span>{% if job.stage == "render" and job.total %}Beat {{ job.beat or job.done }} / {{ job.total }}{% elif job.stage == "voice" and job.total %}Voice {{ [job.done + 1, job.total] | min }} / {{ job.total }}{% endif %}</span>
+      <span>{{ job.stage_text }}{% if job.elapsed %} · {{ job.elapsed }} s{% endif %}</span>
+    </div>
+    <ol class="jsteps">
+      {% for s in job.steps() %}
+      <li class="{{ s.state }}">
+        <span class="jdot">{% if s.state == "done" %}✓{% elif s.state == "failed" %}✕{% else %}{{ loop.index }}{% endif %}</span>
+        <span>{{ s.label }}{% if s.detail %} <em>({{ s.detail }})</em>{% endif %}</span>
+        <span class="st">{{ {"done": "Done", "active": "In progress", "pending": "Pending", "failed": "Failed"}[s.state] }}</span>
+      </li>
+      {% endfor %}
+    </ol>
+    {% if job.status == "running" and job.stage == "render" and job.template %}
+    <div class="job-cur"><span class="spin" style="width:16px;height:16px;border-width:2px"></span>
+      <span><b>Beat {{ "%02d" | format(job.beat or 0) }}, <span class="mono">{{ job.template }}</span></b><small>Rendering with Manim…</small></span></div>
+    {% endif %}
+    {% elif job.kind == "review" and job.status == "running" %}
+    <div class="job-now"><span>Step {{ job.done + 1 }} / 3</span><span>{{ job.stage_text }}{% if job.elapsed %} · {{ job.elapsed }} s{% endif %}</span></div>
+    {% endif %}
+
+    {% if job.status == "failed" %}<div class="alert err"><pre>{{ job.error }}</pre></div>{% endif %}
+
+    {% if job.status == "done" %}
+      {% if job.kind == "beat" and out.beat_preview %}
+        <video class="mini" src="/files/{{ slug }}/output/{{ out.beat_preview.name }}?v={{ job.finished|int }}" controls autoplay playsinline></video>
+      {% elif job.kind in ("preview", "make", "review") %}
+        <div class="flex" style="margin-top:14px;flex-wrap:wrap">
+          {% if job.kind == "review" %}<a class="btn primary" href="/p/{{ slug }}?tab=video#review">See the review</a>
+            <span class="hint" style="margin:0">Score {{ job.result.score }}/10 · {{ job.result.issues }} issues · {{ job.elapsed }} s</span>
+          {% else %}<a class="btn primary" href="/p/{{ slug }}?tab=video">Watch {{ "final video" if job.kind == "make" else "preview" }}</a>
+            <span class="hint" style="margin:0">{{ job.result.seconds }} s long · rendered in {{ job.elapsed }} s</span>{% endif %}
+        </div>
+        <script>
+          (() => { const k = "seen-{{ job.id }}"; if (!sessionStorage.getItem(k)) { sessionStorage.setItem(k, 1);
+            const t = new URLSearchParams(location.search).get("tab"); if (!t || t === "video") location.reload(); } })();
+        </script>
+      {% elif job.kind == "upload" %}
+        <div class="banner ok">Uploaded as <strong>{{ job.result.privacy }}</strong>:
+          <a class="linkbtn" href="{{ job.result.url }}" target="_blank">{{ job.result.url }}</a> ·
+          <a class="linkbtn" href="{{ job.result.studio }}" target="_blank">open in Studio</a>
+          {% for w in job.result.warnings %}<div class="hint">⚠ {{ w }}</div>{% endfor %}</div>
+      {% endif %}
+    {% endif %}
+
+    <details class="joblog" {% if job.status == "failed" %}open{% endif %}>
+      <summary>Log</summary>
+      <pre class="log">{{ job.lines[-14:] | join("\n") }}</pre>
+    </details>
+  </section>
+{% endif %}
+</div>

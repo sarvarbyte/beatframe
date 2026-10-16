@@ -1,0 +1,252 @@
+title: "Why Time Speeds Up As You Get Older"
+description: |
+  When you were six, one summer lasted forever. Now a whole year vanishes before you notice it. The famous explanation says each year is a smaller slice of your life, but when scientists asked hundreds of people of every age, the answer turned out to be different. Time isn't speeding up while you live it. It only speeds up when you look back, and that points to memory. In this video: the 1877 fraction-of-life idea, the 2005 Munich survey of 499 people aged 14 to 94, the holiday paradox, a 31-metre free-fall experiment, a physics hypothesis about mental images, and how to make your own years feel longer.
+
+  Sources:
+  • Paul Janet (1877), the proportional theory of time perception
+  • Wittmann, M. & Lenhoff, S. (2005), Age effects in perception of time, Psychological Reports
+  • Claudia Hammond (2012), Time Warped: Unlocking the Mysteries of Time Perception (the holiday paradox)
+  • Stetson, Fiesta & Eagleman (2007), "Does time really slow down during a frightening event?", PLoS ONE 2(12)
+  • Adrian Bejan (2019), Why the Days Seem Shorter as We Get Older, European Review
+
+  Narration: AI voice.
+tags: [why time speeds up, time goes faster as you age, time perception, memory, holiday paradox, psychology, brain, human brain, science documentary, explained]
+
+voice: {provider: edge, name: en-US-AndrewNeural, rate: "-5%"}
+video: {format: long, fps: 30}
+
+beats:
+  # ---------- COLD OPEN ----------
+  - text: "When you were six, one summer lasted forever."
+    scene: stick_scene
+    chapter: "The year that vanished"
+    params: {setting: outdoor, action: jump, bubble: heart, caption: "Summer, age six"}
+
+  - text: "Now a whole year vanishes before you even notice it's gone."
+    scene: stick_scene
+    params: {setting: office, action: freeze, bubble: clock, caption: "Wait... it's December?"}
+
+  - text: "Your clock didn't speed up. Something in your memory did. And by the end of this video, you'll know how to slow it back down."
+    scene: question_hook
+    params: {question: "Why do years fly faster as you age?", highlight: faster}
+
+  # ---------- STAKES ----------
+  - text: "Almost everyone over thirty says the same thing. Where did the year go?"
+    scene: stick_talk
+    params: {lines: ["Wasn't Christmas just last month?", "Where did this whole year go?"], setting: kitchen}
+
+  - text: "There's a famous explanation for this, and you've probably heard it."
+    scene: brain_light
+    params: {region: front, label: "the famous answer", caption: "the one everyone repeats"}
+
+  - text: "When you're five, one year is a fifth of your entire life. When you're fifty, it's only one fiftieth."
+    scene: bar_chart
+    params: {title: "One year = how much of your life?", labels: ["Age 5", "Age 10", "Age 25", "Age 50"], values: [20, 10, 4, 2], unit: "%", highlight: 0}
+
+  - text: "It's neat. It's simple. It's repeated everywhere. But when scientists finally tested it, the story turned out to be wrong in a very interesting way."
+    scene: myth_fact
+    params: {myth: "Each year is a smaller slice, so it feels faster", fact: "When tested, the story didn't hold up"}
+
+  # ---------- ROADMAP ----------
+  - text: "So in this video, we'll answer three questions. Is time really speeding up for you? If not, what's happening instead? And can you stretch your years back out?"
+    scene: icon_list
+    params: {title: "Three questions", items: ["clock|Is time really speeding up?", "brain|What is happening instead?", "star|Can you slow it down?"]}
+
+  # ---------- ACT 1: THE OLD ANSWER ----------
+  - text: "The fraction-of-life idea is old. In 1877, the French philosopher Paul Janet proposed that we measure each new year against everything we've already lived."
+    scene: timeline
+    chapter: "The old answer"
+    params: {title: "Where the idea came from", events: ["1877|Paul Janet: time feels proportional", "1900s|Repeated in books and classrooms", "Today|Still the answer everyone gives"]}
+
+  - text: "The idea spread because it feels true. But Janet didn't measure anything. He reasoned."
+    scene: stick_scene
+    params: {setting: lab, action: think, bubble: bulb, caption: "A clever guess, never tested"}
+
+  - text: "And there's a problem hidden inside it. If time felt shorter in proportion to your age, then everything would feel faster. Not just years. Weeks. Days. Hours."
+    scene: process_cycle
+    params: {title: "If the theory were true...", steps: ["moon|Years feel faster", "sun|Weeks feel faster", "clock|Days feel faster", "bolt|Hours feel faster"], loop: false}
+
+  - text: "A sixty-year-old should feel an afternoon flash by twice as fast as a thirty-year-old. Does that sound right to you?"
+    scene: stick_compare
+    params: {title: "One afternoon", left_label: "age 30", right_label: "age 60", left_icon: clock, right_icon: bolt, left_result: none, right_result: none}
+
+  - text: "Think about the last time you waited at a doctor's office. Those minutes did not fly."
+    scene: stick_scene
+    params: {setting: plain, action: idle, bubble: zzz, caption: "Still waiting..."}
+
+  - text: "So something doesn't fit. If you actually ask people of every age how fast time feels, what do they say?"
+    scene: question_hook
+    params: {question: "What do people of every age actually say?", highlight: actually}
+
+  # ---------- RE-HOOK 1 ----------
+  - text: "In 2005, two psychologists in Munich, Marc Wittmann and Sandra Lenhoff, did exactly that."
+    scene: stick_crowd
+    chapter: "What people actually said"
+    params: {total: 40, highlight: 40, title: "Munich, 2005", caption: "people of every age, asked about time"}
+
+  - text: "They asked 499 people, aged 14 to 94, how fast the last week, the last month and the last year had passed."
+    scene: source_card
+    params: {number: "499 people", caption: "aged 14 to 94, asked how fast time passes", study: "Wittmann & Lenhoff, Psychological Reports (2005)"}
+
+  - text: "Here's the surprise. For a week, a month, even a single year, age made no difference."
+    scene: bar_chart
+    params: {title: "How fast did last week feel?", labels: ["Teens", "Adults", "Seniors"], values: [60, 60, 60], unit: "", highlight: 1}
+
+  - text: "A teenager and a grandmother felt the last week go by at the same speed."
+    scene: stick_talk
+    params: {lines: ["This week went by pretty fast.", "Same for me. Exactly the same."], setting: street}
+
+  - text: "The difference only appeared when people looked back over ten years. Then, yes, older people said time had raced."
+    scene: stat_pop
+    params: {number: "10 years", count: false, caption: "only then did older people feel time racing", icon: clock, source: "Wittmann & Lenhoff (2005)"}
+
+  - text: "So time isn't speeding up while you live it. It only speeds up when you look back. Which tells us where to look. Not at your clock. At your memory."
+    scene: kinetic_text
+    params: {text: "It only speeds up when you look back.", highlight: "look back"}
+
+  # ---------- ACT 2: HOLIDAY PARADOX ----------
+  - text: "Psychologist Claudia Hammond describes something she calls the holiday paradox."
+    scene: question_hook
+    chapter: "The holiday paradox"
+    params: {question: "Why do holidays feel short, then long?", highlight: holidays}
+
+  - text: "Think about your best holiday. A week somewhere new. New streets, new food, new faces. And suddenly, it was the last day."
+    scene: stick_scene
+    params: {setting: street, action: walk_in, bubble: star, caption: "A week somewhere new"}
+
+  - text: "But when you came home and looked back, that week felt huge. Longer than a whole month of normal life."
+    scene: stick_compare
+    params: {title: "Looking back", left_label: "a month at home", right_label: "one week away", left_icon: house, right_icon: globe, left_result: cross, right_result: check}
+
+  - text: "An ordinary work week does the opposite. While you're in it, it drags. A month later, you can barely tell those weeks apart."
+    scene: stick_doorway
+    params: {left_label: "Monday", right_label: "a month later", carry: clock, forget: true, caption: "The weeks blur into one"}
+
+  - text: "Here's why. When you judge how long a past period was, your brain doesn't check a clock. It counts how many memories it has from that time."
+    scene: brain_light
+    params: {region: center, label: "memory", caption: "it counts memories, not minutes"}
+
+  - text: "Lots of distinct memories, and that stretch feels long. Very few, and it feels short, even if it was the same number of days."
+    scene: bar_chart
+    params: {title: "Memories saved from one week", labels: ["Routine week", "Holiday week"], values: [2, 14], unit: "", highlight: 1}
+
+  - text: "And memories aren't saved evenly. Your brain keeps what's new, and mostly throws away what's familiar."
+    scene: process_cycle
+    params: {title: "What your brain keeps", steps: ["star|Something new", "brain|Saved in detail", "house|Something familiar", "cross|Mostly thrown away"], loop: false}
+
+  # ---------- CHILDHOOD ----------
+  - text: "Now think about childhood. For a child, almost everything happens for the first time."
+    scene: stick_scene
+    chapter: "Why childhood felt endless"
+    params: {setting: outdoor, action: wave, bubble: heart, caption: "Everything is a first"}
+
+  - text: "The first snow. The first day of school. The first time you ride a bike with nobody holding on."
+    scene: timeline
+    params: {title: "A year of firsts", events: ["January|First snow", "September|First day of school", "May|First bike ride", "July|First swim in the sea"]}
+
+  - text: "Every one of those moments gets written down in detail. So when you look back at being seven, your brain finds a thick book of memories."
+    scene: icon_list
+    params: {title: "Age seven, in memory", items: ["book|A thick book", "star|Full of firsts", "eye|Rich detail", "clock|Feels like forever"]}
+
+  - text: "But by thirty or forty, life settles into routine. The same commute. The same desk. The same coffee."
+    scene: stick_scene
+    params: {setting: office, action: idle, bubble: phone, caption: "Same desk. Same coffee."}
+
+  - text: "Your brain has seen all of this before, so it barely saves it. When you look back at a recent year, the book is thin. And a thin book feels short."
+    scene: stick_compare
+    params: {title: "Your memory book", left_label: "age 7", right_label: "age 40", left_icon: book, right_icon: book, left_result: check, right_result: cross}
+
+  - text: "That's the real reason years seem to vanish. They aren't passing faster. They're leaving fewer marks."
+    scene: kinetic_text
+    params: {text: "Years aren't faster. They leave fewer marks.", highlight: "fewer marks"}
+
+  # ---------- ACT 3: FEAR AND SLOW MOTION ----------
+  - text: "But if that's true, what happens when your brain is forced to record everything? People in accidents often say everything went into slow motion."
+    scene: stick_scene
+    chapter: "Does fear slow time?"
+    params: {setting: street, action: scared, bubble: exclaim, caption: "Everything in slow motion"}
+
+  - text: "In 2007, neuroscientist David Eagleman and his team tested this. Volunteers fell thirty-one metres backwards into a safety net."
+    scene: stat_pop
+    params: {number: "31 m", caption: "a real free fall into a net", icon: bolt, source: "Stetson, Fiesta & Eagleman (2007)"}
+
+  - text: "On their wrists, a small display flashed numbers just too fast to read. If time really slowed down, they should suddenly be able to read them."
+    scene: body_map
+    params: {part: eyes, label: "can you read it?", caption: "numbers flashing too fast for normal eyes"}
+
+  - text: "They couldn't. But afterwards, they guessed their fall had lasted about a third longer than the falls they watched other people take."
+    scene: bar_chart
+    params: {title: "How long did the fall feel?", labels: ["Watching others", "Their own fall"], values: [100, 136], unit: "%", highlight: 1}
+
+  - text: "So fear doesn't slow time. It makes your brain record more, and more memory feels like more time. Exactly the same rule as childhood."
+    scene: myth_fact
+    params: {myth: "Fear slows down time", fact: "Fear makes your brain record more"}
+
+  # ---------- ACT 3: PHYSICS HYPOTHESIS ----------
+  - text: "Not everyone thinks memory is the whole story. In 2019, Adrian Bejan, an engineering professor at Duke University, offered a physical explanation."
+    scene: source_card
+    chapter: "A physics idea"
+    params: {number: "2019", count: false, caption: "a physics explanation for faster years", study: "Bejan, European Review (2019)"}
+
+  - text: "He argued that as we age, the nerve pathways from our eyes to the brain grow longer and more complex, and slowly wear down."
+    scene: body_map
+    params: {part: brain, label: "longer, older pathways", caption: "signals take a longer road"}
+
+  - text: "That could mean the brain takes in fewer mental images each second. A child would see more snapshots of the world, so a day would hold more moments."
+    scene: stick_compare
+    params: {title: "Mental images per second", left_label: "a child", right_label: "an adult", left_icon: eye, right_icon: eye, left_result: check, right_result: none}
+
+  - text: "It's an interesting idea, but it's still a hypothesis. It hasn't been tested the way the surveys have."
+    scene: stick_scene
+    params: {setting: lab, action: shrug, bubble: question, caption: "Interesting, but unproven"}
+
+  # ---------- PUTTING IT TOGETHER ----------
+  - text: "So let's put the pieces together. The fraction-of-life idea says everything should feel faster. It doesn't. The image idea might play a part, but it's unproven."
+    scene: icon_list
+    chapter: "The answer"
+    params: {title: "Three explanations", items: ["cross|Fraction of life", "question|Fewer mental images", "check|Fewer new memories"]}
+
+  - text: "And the memory explanation fits everything we've seen. The survey. The holiday paradox. The free fall. Childhood."
+    scene: process_cycle
+    params: {title: "One rule explains it all", steps: ["clock|The survey", "globe|The holiday", "bolt|The free fall", "star|Childhood"], loop: true}
+
+  - text: "Time doesn't move faster as you age. Your brain simply stops writing it down."
+    scene: brain_light
+    params: {region: whole, label: "stops writing", caption: "routine leaves no trace"}
+
+  # ---------- PAYOFF ----------
+  - text: "And that means you're not stuck with it. If your years feel short because they leave few memories, you can make them leave more."
+    scene: question_hook
+    chapter: "How to make your years longer"
+    params: {question: "Can you make a year feel longer?", highlight: longer}
+
+  - text: "Not with big dramatic things. With new things. Take a different street home. Visit a place you've never been. Learn something you're bad at. Talk to someone new."
+    scene: icon_list
+    params: {title: "Stretch your year", items: ["house|A new way home", "globe|A place you've never been", "book|A skill you're bad at", "heart|Someone new"]}
+
+  - text: "Each new experience forces your brain to start writing again."
+    scene: stick_scene
+    params: {setting: kitchen, action: point, bubble: bulb, caption: "Something new today"}
+
+  - text: "A year full of firsts, when you look back on it, will feel long again. Just like childhood."
+    scene: stick_scene
+    params: {setting: outdoor, action: run, bubble: star, caption: "A year full of firsts"}
+
+  - text: "You can't make the clock go slower. But you can make your life heavier in memory."
+    scene: kinetic_text
+    params: {text: "Make your life heavier in memory.", highlight: "heavier"}
+
+  # ---------- ZOOM OUT ----------
+  - text: "For the universe, every second is exactly the same length. The Earth turns at the same speed it did when you were six."
+    scene: cosmic_zoom
+    chapter: "Time, from far away"
+    params: {levels: ["person", "earth", "solar", "galaxy"]}
+
+  - text: "The only thing that changed is how much of it you kept. Time isn't running out faster. It's only waiting to be noticed."
+    scene: stick_scene
+    params: {setting: night, action: idle, bubble: moon, caption: "Waiting to be noticed"}
+
+  # ---------- EXIT ----------
+  - text: "And if memory is what makes time feel real, there's a strange question waiting. Why can't any of us remember the first years of our own lives? That's the next mystery."
+    scene: question_hook
+    params: {question: "Why can't you remember being a baby?", highlight: baby}

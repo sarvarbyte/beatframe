@@ -1,0 +1,43 @@
+title: "Your Brain Deletes Most of Your Week"
+description: |
+  Can you remember last Tuesday? Most people can't. Your brain keeps what's new and squeezes routine days into one memory. Did you remember yours? Yes or no?
+
+  Full story: Why Time Speeds Up As You Get Older
+  #brain #memory #psychology #Shorts
+tags: [brain, memory, psychology, why time speeds up, routine, shorts]
+
+voice: {provider: edge, name: en-US-AndrewNeural, rate: "-5%"}
+video: {format: short, fps: 30}
+
+beats:
+  - text: "You can't remember last Tuesday."
+    scene: stick_scene
+    params: {setting: office, action: freeze, bubble: question, caption: "Last Tuesday?"}
+
+  - text: "Try it. What did you eat? What did you say? It's almost empty."
+    scene: stick_scene
+    params: {setting: kitchen, action: think, bubble: apple, caption: "Try it right now"}
+
+  - text: "Your brain deleted it on purpose."
+    scene: brain_light
+    params: {region: center, label: "deleted", caption: "on purpose"}
+
+  - text: "When days repeat, your brain squeezes them together. Five ordinary days become one blurry memory."
+    scene: process_cycle
+    params: {title: "Autopilot", steps: ["sun|Wake up", "house|Commute", "clock|Work", "moon|Sleep"], loop: true}
+
+  - text: "But something new gets saved in detail."
+    scene: stick_compare
+    params: {title: "What your brain keeps", left_label: "same old day", right_label: "something new", left_icon: clock, right_icon: star, left_result: cross, right_result: check}
+
+  - text: "That's why years feel shorter as you get older. Fewer new days, fewer memories."
+    scene: bar_chart
+    params: {title: "New memories in a year", labels: ["Age 7", "Age 40"], values: [90, 20], unit: "", highlight: 0}
+
+  - text: "Do one new thing today, and your brain will keep it."
+    scene: stick_scene
+    params: {setting: street, action: walk_in, bubble: star, caption: "One new thing today"}
+
+  - text: "What else isn't what it seems?"
+    scene: question_hook
+    params: {question: "What else isn't what it seems?", highlight: seems}

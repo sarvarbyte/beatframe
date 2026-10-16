@@ -1,0 +1,105 @@
+title: The Memory That Never Happened
+description: 'You''re about to see eight words. Afterward, one question. Your answer might surprise you.
+
+
+  Memory doesn''t work like a recording. Each time you remember, your brain rebuilds the moment, and sometimes
+  it adds things that were never there. In this video we test it on you, then look at two classic experiments:
+  Roediger & McDermott''s word lists (1995) and Loftus & Palmer''s car-crash study (1974), where a single
+  word in a question changed what people remembered seeing.
+
+
+  Sources:
+
+  • Roediger, H. L., & McDermott, K. B. (1995). Creating false memories: Remembering words not presented
+  in lists. Journal of Experimental Psychology: Learning, Memory, and Cognition.
+
+  • Loftus, E. F., & Palmer, J. C. (1974). Reconstruction of automobile destruction. Journal of Verbal
+  Learning and Verbal Behavior.
+
+  • Schacter, D. L., & Addis, D. R. (2007). The cognitive neuroscience of constructive memory. Philosophical
+  Transactions of the Royal Society B.
+
+  '
+tags:
+- false memory
+- memory
+- psychology
+- brain
+- Elizabeth Loftus
+- DRM paradigm
+- Roediger McDermott
+- how memory works
+- cognitive psychology
+- Human Unknowns
+source: import
+script: 'There is something I want you to remember. Not something from your childhood. Not a face. Not
+  a place. Something you are about to see. In a moment, eight words will appear on your screen. Pay attention
+  to each one. Because afterward, I''m going to ask you a question. And your answer might surprise you.
+
+  Now, without going back... Think about the words you just saw. Was the word SLEEP on the screen? Take
+  a moment. Are you sure? It wasn''t. Not once. But if you thought you saw it, you have just experienced
+  something psychologists have studied for decades. And if you didn''t, that matters too. Because this
+  experiment doesn''t work on everyone.
+
+  Look at those words again. Bed. Rest. Dream. Blanket. They all point toward the same idea. Your mind
+  doesn''t process words as isolated pieces of information. It also processes their meanings. Their relationships.
+  The connections between them. And sometimes, those connections can make an absent word feel strangely
+  familiar. In a famous experiment published in 1995, psychologists Henry Roediger and Kathleen McDermott
+  studied this effect. People remembered words that had never appeared in the lists they were given. Some
+  even reported remembering those missing words with confidence. The important part is not that memory
+  sometimes fails. It''s how it fails. The mind can produce an experience of remembering that does not
+  perfectly match what was presented.
+
+  Now imagine a different experiment. You watch a short film of two cars colliding. Later, someone asks
+  you a question. How fast were the cars going when they hit each other? But another person hears a slightly
+  different question. How fast were the cars going when they smashed into each other? One word has changed.
+  And that word matters. In a 1974 study, Elizabeth Loftus and John Palmer found that the wording of this
+  question influenced people''s estimates of the cars'' speed. In a second experiment, participants who
+  heard the stronger wording were also more likely to report broken glass a week later. Even though the
+  film contained no broken glass. A question asked after an event had influenced what some people later
+  reported remembering. That does not mean every memory can be rewritten at will. It means the information
+  we encounter after an experience can sometimes affect how we remember it.
+
+  Imagine a room. A wooden table. A small lamp. A window facing the street. And a red cup beside a notebook.
+  You leave. Years pass. Then you try to picture that room again. You remember the warm light. The sound
+  of rain outside. The feeling of sitting there. But what if the cup was actually blue? What if the notebook
+  was never on the table? This room is an illustration, not an experiment. But it helps us picture an
+  important idea. Remembering is not always like pressing play on a recording. Our minds reconstruct experiences
+  using information that has been stored, connected, and interpreted. Usually, this works remarkably well.
+  But reconstruction leaves room for mistakes. And sometimes, those mistakes can feel completely natural.
+
+  So why would the mind work like this? Why not preserve every moment exactly as it happened? Because
+  memory does more than help us look backward. It also helps us think forward. Researchers studying memory
+  and imagination have found that remembering past experiences and imagining possible future events draw
+  on overlapping mental processes. To imagine tomorrow, we can combine pieces of yesterday. A familiar
+  street. A friend''s face. A conversation that hasn''t happened yet. The ability to recombine information
+  can be useful. It helps us imagine possibilities. Plan decisions. And prepare for things we have never
+  experienced. But a flexible system is not an infallible one.
+
+  Think back to the beginning of this film. Eight words. One question. A memory you could test almost
+  immediately. Now think about a memory from ten years ago. A conversation. A place. A moment you can
+  picture perfectly. That memory may be accurate. Or some details may have changed. The feeling of certainty
+  alone cannot tell you which. And perhaps that is the strangest thing about memory. We depend on it to
+  understand who we are. Yet remembering is not simply looking into the past. Sometimes, it is the mind
+  rebuilding it.
+
+  '
+chapters: '00:00 Remember this
+
+  00:24 Eight words
+
+  00:44 Was it there?
+
+  01:06 Why your brain did this
+
+  01:59 One word changed a memory
+
+  02:58 The memory room
+
+  03:46 Why memory works this way
+
+  04:33 Rebuilding the past
+
+  '
+made_with: google flow + manim
+synthetic: true

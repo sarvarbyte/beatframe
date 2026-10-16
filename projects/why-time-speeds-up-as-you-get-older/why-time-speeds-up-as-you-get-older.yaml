@@ -1,0 +1,174 @@
+title: "Why Time Speeds Up As You Get Older"
+description: |
+  Think back to January. It feels like a few weeks ago. So where did the year go? The clock hasn't changed, but your brain has. In this video we look at the three main reasons time seems to speed up with age: the math of a lifetime, a brain that stops recording routine days, and the "firsts" that run out as we grow up. We look at the holiday paradox, why childhood felt endless, what a 31-metre free fall reveals about "slow motion" moments, and simple ways to make your own year feel longer.
+
+  Sources:
+  • Paul Janet (1877), the proportional theory of time perception
+  • Claudia Hammond (2012), Time Warped: Unlocking the Mysteries of Time Perception (the holiday paradox)
+  • Rubin, Wetzler & Nebes (1986), the reminiscence bump in autobiographical memory
+  • Stetson, Fiesta & Eagleman (2007), "Does time really slow down during a frightening event?", PLoS ONE 2(12)
+tags: [time perception, why time speeds up, time goes faster as you age, memory, holiday paradox, reminiscence bump, brain, psychology, human brain, documentary]
+
+voice: {provider: edge, name: en-US-AndrewNeural, rate: "-5%"}
+video: {format: long, fps: 30}
+
+beats:
+  - text: "Think back to January. It feels like a few weeks ago, doesn't it?"
+    scene: question_hook
+    chapter: "The year that vanished"
+    params: {question: "Where did this year go?", highlight: year}
+
+  - text: "And yet a whole year has passed. Three hundred and sixty-five days, and most of them have simply disappeared."
+    scene: stick_scene
+    params: {setting: bedroom, action: freeze, bubble: clock, caption: "Wasn't it just January?"}
+
+  - text: "Almost everyone says the same thing. As a child, one summer felt like forever. As an adult, whole years slip by."
+    scene: stick_talk
+    params: {lines: ["Summer lasted forever when I was a kid.", "Now a whole year feels like a month."], setting: outdoor}
+
+  - text: "But the clock on your wall hasn't changed. Every hour is still sixty minutes. So what is changing? Your brain."
+    scene: kinetic_text
+    params: {text: "Time isn't speeding up. Your brain is changing.", highlight: "brain"}
+
+  - text: "Scientists have three main explanations, and the third one is the most surprising. Let's go through them."
+    scene: icon_list
+    params: {title: "Three reasons", items: ["clock|Your life gets longer", "brain|Your memory gets lazy", "star|Your firsts run out"]}
+
+  - text: "The first explanation is simple math."
+    scene: kinetic_text
+    chapter: "The math of a lifetime"
+    params: {text: "Reason one: the math of a lifetime", highlight: "math"}
+
+  - text: "When you're five years old, one year is a fifth of your entire life. At ten, it's a tenth. At fifty, it's just two percent."
+    scene: bar_chart
+    params: {title: "One year = how much of your life?", labels: ["Age 5", "Age 10", "Age 20", "Age 50"], values: [20, 10, 5, 2], unit: "%", highlight: 0}
+
+  - text: "So the same twelve months feel huge to a child and tiny to an adult. Each new year is a smaller slice of everything you've lived."
+    scene: stick_compare
+    params: {title: "The same 12 months", left_label: "at age 5", right_label: "at age 50", left_icon: star, right_icon: clock, left_result: none, right_result: none}
+
+  - text: "This idea is old. In 1877, the French philosopher Paul Janet suggested that we feel time in proportion to the life we've already lived."
+    scene: timeline
+    params: {title: "An old idea", events: ["1877|Paul Janet: time feels proportional", "Today|Still part of the answer"]}
+
+  - text: "But the math can't be the whole story. It doesn't explain why one weekend away can feel longer than a whole month at home. For that, we need memory."
+    scene: myth_fact
+    params: {myth: "The math explains everything", fact: "It explains part of it. Memory explains more."}
+
+  - text: "Here's a strange fact. Your brain has no single clock that tells you how long ago something happened."
+    scene: question_hook
+    chapter: "How your brain measures time"
+    params: {question: "How does your brain measure time?", highlight: measure}
+
+  - text: "Instead, when you look back, it estimates time from your memories. Lots of memories feels like a long time. Few memories feels like a short one."
+    scene: brain_light
+    params: {region: center, label: "memories", caption: "your brain counts memories, not minutes"}
+
+  - text: "Now think about a normal week. Same alarm. Same commute. Same desk. Same lunch."
+    scene: stick_scene
+    params: {setting: office, action: idle, bubble: zzz, caption: "Same desk. Same lunch."}
+
+  - text: "Your brain is very good at spotting patterns. When days repeat, it stops recording the details. It switches to autopilot."
+    scene: process_cycle
+    params: {title: "Autopilot", steps: ["sun|Wake up", "house|Commute", "clock|Work", "moon|Sleep"], loop: true}
+
+  - text: "Those repeated days get squeezed together into one blurry memory. Five days become a single file called work week."
+    scene: kinetic_text
+    params: {text: "Routine days get squeezed into one memory", highlight: "squeezed"}
+
+  - text: "So when Friday comes, it feels like Monday was yesterday. Not because time moved faster, but because your brain kept almost nothing in between."
+    scene: stick_doorway
+    params: {left_label: "Monday", right_label: "Friday", carry: clock, forget: true, caption: "Where did the week go?"}
+
+  - text: "The psychologist and writer Claudia Hammond calls this the holiday paradox."
+    scene: kinetic_text
+    chapter: "The holiday paradox"
+    params: {text: "The holiday paradox", highlight: "holiday"}
+
+  - text: "On a trip, everything is new. New streets, new food, new faces, new words."
+    scene: stick_scene
+    params: {setting: street, action: walk_in, bubble: star, caption: "Day one of a trip"}
+
+  - text: "Your brain records all of it in rich detail, because none of it matches a pattern it already knows."
+    scene: icon_list
+    params: {title: "A week away", items: ["globe|New places", "apple|New food", "heart|New people", "music|New sounds"]}
+
+  - text: "While you're there, the week flies by. But afterwards, that one week feels longer than a month at home, because it left so many more memories."
+    scene: stick_compare
+    params: {title: "Looking back", left_label: "a week at home", right_label: "a week away", left_icon: clock, right_icon: globe, left_result: cross, right_result: check}
+
+  - text: "That's the paradox. New experiences feel fast while they happen, and long when you remember them. Routine feels slow while it happens, and short in memory."
+    scene: kinetic_text
+    params: {text: "Fast while it happens. Long when you remember it.", highlight: "Fast, Long"}
+
+  - text: "And this explains one of the biggest mysteries of all."
+    scene: question_hook
+    chapter: "Why childhood felt endless"
+    params: {question: "Why did childhood feel endless?", highlight: endless}
+
+  - text: "As a child, almost everything was a first. First day of school. First friend. First lost tooth. First time riding a bike."
+    scene: timeline
+    params: {title: "A child's year of firsts", events: ["September|First day of school", "October|First best friend", "March|First lost tooth", "June|First bike ride"]}
+
+  - text: "Every first is a brand new memory, packed with detail. A child's year is full of them, so it feels enormous."
+    scene: stick_scene
+    params: {setting: outdoor, action: jump, bubble: star, caption: "Everything is new"}
+
+  - text: "When older people describe their lives, they recall far more events from roughly age ten to thirty than from any other period. Psychologists call it the reminiscence bump."
+    scene: stat_pop
+    params: {number: "10–30", count: false, caption: "the ages we remember most", icon: brain, source: "the reminiscence bump"}
+
+  - text: "Then we grow up. We find a routine that works, and we repeat it. The firsts run out, and the years start to blur."
+    scene: kinetic_text
+    params: {text: "The firsts run out, and the years start to blur", highlight: "firsts, blur"}
+
+  - text: "There's one more clue. People who survive car crashes or bad falls often say everything happened in slow motion."
+    scene: stick_scene
+    chapter: "When time slows down"
+    params: {setting: street, action: scared, bubble: exclaim, caption: "Everything in slow motion"}
+
+  - text: "In 2007, neuroscientist David Eagleman and his team tested this. Volunteers fell thirty-one metres backwards into a safety net."
+    scene: stat_pop
+    params: {number: "31 m", caption: "a free fall into a net", icon: bolt, source: "Stetson, Fiesta & Eagleman (2007)"}
+
+  - text: "Afterwards, they guessed that their own fall had lasted about a third longer than the falls they watched other people take."
+    scene: bar_chart
+    params: {title: "How long did the fall feel?", labels: ["Watching others", "Their own fall"], values: [100, 136], unit: "%", highlight: 1}
+
+  - text: "But during the fall, they could not read numbers flashing too fast for normal eyes. Time didn't slow down. Fear made the brain record more, so the memory felt longer."
+    scene: myth_fact
+    params: {myth: "Fear slows down time", fact: "Fear makes your brain record more"}
+
+  - text: "So here's the good news. If memories make time feel long, you can create more of them."
+    scene: question_hook
+    chapter: "How to make your year longer"
+    params: {question: "Can you slow down your own year?", highlight: slow}
+
+  - text: "Go somewhere you've never been, even a new street in your own city. Learn something new. Meet new people. Change small parts of your routine."
+    scene: icon_list
+    params: {title: "Make your year longer", items: ["globe|Go somewhere new", "book|Learn a new skill", "heart|Meet new people", "star|Break your routine"]}
+
+  - text: "Even tiny changes work. Take a different route home. Try a new recipe. Sit somewhere different."
+    scene: stick_scene
+    params: {setting: kitchen, action: think, bubble: bulb, caption: "Try something new today"}
+
+  - text: "Every new experience gives your brain something worth recording. More memories, and the year stretches out behind you."
+    scene: process_cycle
+    params: {title: "The loop", steps: ["star|Something new", "brain|A rich memory", "clock|A longer year"], loop: false}
+
+  - text: "And pay attention. Notice the light, the sounds, the faces. Details you notice are details you remember."
+    scene: body_map
+    params: {part: eyes, label: "pay attention", caption: "notice the details"}
+
+  - text: "So time isn't really running out faster. We're just remembering less of it."
+    scene: kinetic_text
+    chapter: "What will you remember?"
+    params: {text: "Time isn't running out faster. You're remembering less of it.", highlight: "remembering"}
+
+  - text: "When this year ends, ask yourself one question. What new thing will you remember from it?"
+    scene: question_hook
+    params: {question: "What will you remember from this year?", highlight: remember}
+
+  - text: "If this changed how you see time, follow Human Unknowns. There's a lot more your brain hasn't told you."
+    scene: kinetic_text
+    params: {text: "Follow Human Unknowns for more", highlight: "Human Unknowns"}

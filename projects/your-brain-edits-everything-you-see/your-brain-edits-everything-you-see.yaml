@@ -1,0 +1,430 @@
+title: Your Brain Edits Everything You See
+description: 'Your brain edits everything you see. It paints in detail your eyes never captured, fills
+  a hole in your vision, blacks out your sight three times a second, hides things right in front of you,
+  and shows you a prediction instead of the present. This is how, and why.
+
+
+  Try it: hold your thumb at arm''s length (only the nail is sharp), and look from one eye to the other
+  in a mirror (you will never see your eyes move).
+
+
+  Sources:
+
+  • Koch et al. (2006), "How much the eye tells the brain", Current Biology 16(14)
+
+  • Zheng & Meister (2024), "The unbearable slowness of being: Why do we live at 10 bits/s?", Neuron
+
+  • Ramachandran (1992), "Blind spots", Scientific American 266(5)
+
+  • Simons & Chabris (1999), "Gorillas in our midst", Perception 28
+
+  • Simons & Levin (1998), "Failure to detect changes to people during a real-world interaction", Psychonomic
+  Bulletin & Review 5
+
+  • Nijhawan (1994), "Motion extrapolation in catching", Nature 370
+
+  • Raichle & Gusnard (2002), "Appraising the brain''s energy budget", PNAS 99(16)
+
+  • Anil Seth (2021), Being You: A New Science of Consciousness
+
+  The "more than an hour a day" figure is a rough estimate from typical saccade rates and durations.
+
+
+  Narration: AI voice. Animated with Manim.
+
+  '
+tags:
+- brain
+- perception
+- vision
+- blind spot
+- saccadic suppression
+- change blindness
+- invisible gorilla
+- inattentional blindness
+- flash lag
+- neuroscience
+- human body
+- psychology
+- science documentary
+voice:
+  rate: -5%
+beats:
+- text: Your brain edits everything you see. Right now, while you watch this, it is cutting things out,
+    painting things in, and hiding the evidence.
+  scene: stick_scene
+  params:
+    setting: outdoor
+    action: point
+    bubble: eye
+    caption: Your brain edits everything you see
+  chapter: Your brain edits everything you see
+- text: There is a hole in your vision you have never noticed. You go blind several times every second.
+    And something is in front of your face right now that your brain refuses to show you.
+  scene: statement
+  params:
+    text: A hole. A blackout. A hidden thing.
+    highlight: hole
+    motif: orb
+- text: None of this is a defect. It is the job.
+  scene: kinetic_text
+  params:
+    text: Not a defect. The job.
+    highlight: job
+- text: Your eyes send your brain roughly ten million bits of information every second.
+  scene: stat_pop
+  params:
+    number: 10 million
+    caption: bits per second from your eyes
+    icon: eye
+    source: Koch et al., 2006
+- text: But one recent estimate puts the speed of conscious thought at about ten bits per second. Ten
+    million in, ten out. Something has to decide what you get to see.
+  scene: source_card
+  params:
+    number: 10 bits/s
+    caption: the speed of conscious thought
+    study: Zheng & Meister, Neuron (2024)
+- text: By the end of this video, you'll know exactly what your brain cuts, why it does it, and why the
+    world you see is closer to a prediction than a photograph. But first, a test.
+  scene: statement
+  params:
+    text: What it cuts. Why. And what you really see.
+    highlight: really
+    max_chars: 20
+    motif: rings
+- text: Let's start with something you can check right now.
+  scene: title_card
+  params:
+    kicker: PART 1
+    line1: THE BLURRY
+    line2: TRUTH
+  chapter: The blurry truth
+- text: Hold your thumb out at arm's length and look at the nail. That little patch is about the only
+    part of the world you see sharply.
+  scene: stick_scene
+  params:
+    setting: plain
+    action: point
+    bubble: star
+    caption: Thumb at arm's length
+- text: It's called the fovea, a tiny pit in the middle of your retina packed with colour sensors. Outside
+    it, your vision gets blurry fast, and near the edges it barely sees colour at all.
+  scene: body_map
+  params:
+    part: eyes
+    label: 'the fovea: one tiny sharp spot'
+    caption: Only the center is sharp
+- text: But that's not what it feels like. It feels like the whole room is sharp and full of colour, all
+    at once.
+  scene: kinetic_text
+  params:
+    text: Blurry edges. You never notice.
+    highlight: blurry, never
+- text: That's the first edit. Your eyes jump around and collect sharp snapshots, and your brain stitches
+    them into one smooth, detailed scene. Much of what you think you see at the edges is your brain's
+    best guess.
+  scene: brain_light
+  params:
+    region: back
+    label: visual cortex fills in detail
+    caption: Your brain paints the rest
+- text: So your eyes are not a camera. And it gets stranger, because even the sharp part has a hole in
+    it.
+  scene: myth_fact
+  params:
+    myth: Your eyes work like a camera
+    fact: Your brain builds the picture from guesses
+- text: Every eye has a blind spot.
+  scene: title_card
+  params:
+    kicker: PART 2
+    line1: THE HOLE
+    line2: YOU NEVER SEE
+  chapter: The hole you never see
+- text: At the back of each eye, the optic nerve leaves for the brain. At that spot there are no light
+    sensors at all. A real hole in your vision, big enough to hide a person's head across a room.
+  scene: body_map
+  params:
+    part: eyes
+    label: 'optic nerve: no sensors here'
+    caption: A hole in every eye
+- text: With both eyes open, each eye covers the other one's hole. That part is simple.
+  scene: stick_compare
+  params:
+    title: Your two eyes
+    left_label: left eye
+    right_label: right eye
+    left_icon: eye
+    right_icon: eye
+    left_result: check
+    right_result: check
+- text: But close one eye, and the hole is still there. And you still don't see it. No black spot. No
+    gap. Nothing.
+  scene: stick_scene
+  params:
+    setting: office
+    action: shrug
+    bubble: question
+    caption: Close one eye
+- text: Your brain fills the hole with whatever surrounds it. A wall gets more wall. A pattern gets more
+    pattern. Experiments by Vilayanur Ramachandran showed people see lines continue straight through it.
+  scene: brain_light
+  params:
+    region: back
+    label: fills the gap with surroundings
+    caption: Filled in, not empty
+- text: This is the key idea. When your brain has no data, it doesn't show you nothing. It invents something,
+    and it doesn't tell you.
+  scene: kinetic_text
+  params:
+    text: No data? It invents something.
+    highlight: invents
+- text: And that is the small edit. The big one happens about three times every second.
+  scene: statement
+  params:
+    text: That was the small edit.
+    highlight: small
+    motif: particles
+- text: Your eyes never stop moving.
+  scene: title_card
+  params:
+    kicker: PART 3
+    line1: BLIND THREE TIMES
+    line2: A SECOND
+  chapter: Blind three times a second
+- text: They jump from point to point about three times a second. These jumps are called saccades, and
+    they are among the fastest movements your body makes.
+  scene: stat_pop
+  params:
+    number: '3'
+    caption: eye jumps every second
+    icon: eye
+    source: saccades
+- text: During each jump, the image smears across your retina. You should see the world whip and blur,
+    again and again, all day long.
+  scene: stick_scene
+  params:
+    setting: street
+    action: scared
+    bubble: exclaim
+    caption: Everything should blur
+- text: You don't, because your brain turns the signal down during every jump, then quietly stitches the
+    moment before to the moment after. It's called saccadic suppression.
+  scene: brain_light
+  params:
+    region: center
+    label: vision dimmed mid-jump
+    caption: Saccadic suppression
+- text: You can catch it in a mirror. Look at your left eye, then your right. Back and forth. You will
+    never see your own eyes move. Anyone watching you will.
+  scene: stick_scene
+  params:
+    setting: bedroom
+    action: think
+    bubble: eye
+    caption: Try it with a mirror
+- text: Add up all those tiny blackouts, and by rough estimates you spend more than an hour of every waking
+    day effectively blind, without ever noticing a gap.
+  scene: source_card
+  params:
+    number: 1 hour
+    caption: or more of hidden blackouts every day
+    study: Rough estimate from typical saccades
+    count: false
+- text: So your brain doesn't just fill holes in space. It fills holes in time. But what if the thing
+    it cuts isn't a gap, but something real?
+  scene: kinetic_text
+  params:
+    text: It fills holes in time, too.
+    highlight: time
+- text: In 1999, two psychologists ran an experiment that became famous.
+  scene: title_card
+  params:
+    kicker: PART 4
+    line1: THE GORILLA
+    line2: IN THE ROOM
+  chapter: The gorilla in the room
+- text: Daniel Simons and Christopher Chabris asked people to watch a video of players passing a basketball,
+    and to count the passes made by one team.
+  scene: stick_crowd
+  params:
+    total: 6
+    highlight: 3
+    title: Count the passes
+    caption: Two teams, one ball
+- text: Halfway through, a person in a gorilla suit walks into the middle of the game, faces the camera,
+    thumps their chest, and walks off.
+  scene: stick_scene
+  params:
+    setting: outdoor
+    action: walk_in
+    bubble: exclaim
+    caption: A gorilla walks through
+- text: About half of the viewers never saw it. Not a blur, not a shadow. They were sure there had been
+    no gorilla.
+  scene: stick_crowd
+  params:
+    total: 10
+    highlight: 5
+    title: Never saw the gorilla
+    caption: About half of people
+- text: A year earlier, Simons and Daniel Levin tried something bolder. A stranger stopped people on a
+    college campus and asked for directions.
+  scene: stick_talk
+  params:
+    lines:
+    - Excuse me, where's the library?
+    - Sure, let me show you on the map.
+    setting: street
+- text: Mid-conversation, two workers carried a door between them, and the stranger was swapped for a
+    different person. Only about half of the people noticed they were now talking to someone else.
+  scene: stick_compare
+  params:
+    title: Same person?
+    left_label: before the door
+    right_label: after the door
+    left_icon: question
+    right_icon: question
+    left_result: check
+    right_result: cross
+- text: Scientists call these inattentional blindness and change blindness. You don't see what's in front
+    of you. You see what your brain has decided matters.
+  scene: myth_fact
+  params:
+    myth: You see what's in front of you
+    fact: You see what your brain thinks matters
+- text: And here's the strangest part. Everything you do see is already old.
+  scene: statement
+  params:
+    text: And all of it arrives late.
+    highlight: late
+    motif: orb
+- text: Light reaches your eye almost instantly. Your brain is much slower.
+  scene: title_card
+  params:
+    kicker: PART 5
+    line1: YOU SEE
+    line2: THE PAST
+  chapter: You see the past
+- text: Your retina has to turn light into signals, those signals have to travel, and your brain has to
+    build a picture. All of that takes roughly a tenth of a second.
+  scene: process_cycle
+  params:
+    title: From light to sight
+    steps:
+    - sun|Light
+    - eye|Retina
+    - bolt|Nerve signal
+    - brain|Picture
+    loop: false
+- text: That doesn't sound like much, until you try to catch a ball or cross a road. A tenth of a second
+    late, a fast ball is already somewhere else.
+  scene: stick_scene
+  params:
+    setting: street
+    action: jump
+    bubble: clock
+    caption: A tenth of a second late
+- text: So your brain cheats. It predicts where moving things will be and shows you that. In the flash-lag
+    illusion, a moving object looks ahead of a flash that is perfectly lined up with it.
+  scene: brain_light
+  params:
+    region: front
+    label: predicts where things will be
+    caption: Your brain looks ahead
+- text: What you experience as now is your brain's forecast of now.
+  scene: kinetic_text
+  params:
+    text: You see a forecast, not the present.
+    highlight: forecast
+- text: So why would evolution build a brain that edits reality?
+  scene: title_card
+  params:
+    kicker: PART 6
+    line1: WHY YOUR
+    line2: BRAIN LIES
+  chapter: Why your brain lies
+- text: 'Look at the list. Every edit saves something: time, energy, attention. A brain that showed you
+    every raw signal would drown in noise and react too late.'
+  scene: icon_list
+  params:
+    title: What your brain edits
+    items:
+    - eye|Blurry edges, painted sharp
+    - question|The blind spot, filled in
+    - bolt|Eye jumps, blacked out
+    - star|Unexpected things, ignored
+    - clock|The delay, predicted away
+- text: Your brain is about two percent of your body weight, but it uses about twenty percent of your
+    energy. It simply can't afford to process everything.
+  scene: stat_pop
+  params:
+    number: 20%
+    caption: of your body's energy goes to your brain
+    icon: brain
+    source: Raichle & Gusnard, PNAS (2002)
+- text: Neuroscientist Anil Seth has a name for this. Perception, he says, is a controlled hallucination.
+    Your brain guesses what's out there, and your senses keep correcting the guess.
+  scene: statement
+  params:
+    text: A controlled hallucination.
+    highlight: hallucination
+    motif: rings
+- text: Most of the time the guess is so good that you never notice it's a guess. That's how you can look
+    at your own nose all day and never see it.
+  scene: stick_scene
+  params:
+    setting: kitchen
+    action: think
+    bubble: brain
+    caption: A guess, kept honest
+- text: So what do you do with this?
+  scene: title_card
+  params:
+    kicker: PART 7
+    line1: WHAT THIS
+    line2: MEANS FOR YOU
+  chapter: What this means for you
+- text: First, be a little humble about what you're sure you saw. Two people can watch the same moment
+    and honestly remember different things.
+  scene: stick_compare
+  params:
+    title: When you're sure you saw it
+    left_label: trust it fully
+    right_label: look again
+    left_icon: eye
+    right_icon: key
+    left_result: cross
+    right_result: check
+- text: Second, when something matters, like a road you're crossing, look on purpose. Your brain shows
+    you what it expects, so give it a reason to look again.
+  scene: kinetic_text
+  params:
+    text: When it matters, look on purpose.
+    highlight: purpose
+- text: And third, enjoy the strangeness. You have never seen the world as it is. You have only ever seen
+    your brain's edit of it.
+  scene: statement
+  params:
+    text: You've only ever seen your brain's edit.
+    highlight: edit
+    max_chars: 22
+    motif: particles
+- text: Zoom out far enough, and it's the same story everywhere. The stars you see tonight are light that
+    left them years, even centuries ago. Even the night sky is an old photograph, edited by your brain
+    into one calm, still picture.
+  scene: cosmic_zoom
+  params:
+    levels:
+    - person
+    - earth
+    - solar
+    - galaxy
+- text: So if your eyes edit what you see, what does your brain do with what you feel, remember and believe?
+    What else isn't what it seems?
+  scene: statement
+  params:
+    text: What else isn't what it seems?
+    highlight: seems
+    motif: orb

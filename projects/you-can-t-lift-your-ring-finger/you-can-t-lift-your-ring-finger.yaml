@@ -1,0 +1,77 @@
+title: You Can't Lift Your Ring Finger
+description: 'Put your hand flat on a table, fold your middle finger under, and try to lift your ring
+  finger. It barely moves. The tendons that lift your middle and ring fingers are tied together, so when
+  the middle one is folded, the ring finger is held down with it.
+
+
+  Could you lift it? Yes or no?
+
+
+  Based on hand anatomy: the extensor tendons of the middle and ring fingers are linked by bands called
+  juncturae tendinum.
+
+  '
+tags:
+- human body
+- hand
+- anatomy
+- try this
+- perception
+- psychology
+- shorts
+video:
+  format: short
+beats:
+- text: You can't lift your ring finger.
+  scene: stick_scene
+  params:
+    setting: plain
+    action: jump
+    bubble: exclaim
+    caption: You can't lift this finger
+  pad: 0.2
+  min_duration: 1.8
+- text: Try it. Put your hand flat on a table.
+  scene: kinetic_text
+  params:
+    text: Hand flat on a table.
+    highlight: flat
+  pad: 0.4
+- text: Fold your middle finger under. Now lift your ring finger.
+  scene: kinetic_text
+  params:
+    text: Fold the middle. Lift the ring.
+    highlight: fold, lift
+  pad: 0.8
+- text: It won't move.
+  scene: stick_scene
+  params:
+    setting: plain
+    action: shrug
+    bubble: question
+    caption: It won't move
+  pad: 0.2
+- text: The tendons that lift these two fingers are tied together.
+  scene: body_map
+  params:
+    part: hands
+    label: two fingers, one linked tendon
+    caption: They're tied together
+  pad: 0.2
+- text: Fold one, and the other is held down with it.
+  scene: stick_compare
+  params:
+    title: Lift your ring finger
+    left_label: middle finger up
+    right_label: middle finger folded
+    left_icon: bolt
+    right_icon: key
+    left_result: check
+    right_result: cross
+  pad: 0.3
+- text: What else isn't what it seems?
+  scene: statement
+  params:
+    text: What else isn't what it seems?
+    highlight: seems
+    motif: orb

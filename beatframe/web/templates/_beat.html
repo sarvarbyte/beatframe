@@ -1,0 +1,43 @@
+{% set i = b.i %}{% set beat = b.beat %}
+<article class="card beatcard {{ 'long-fmt' if out and out.fmt == 'long' }}" id="beat-{{ i }}">
+  <div style="min-width:0">
+    <div class="row">
+      <div class="flex"><span class="number">{{ i }}</span><span class="pill purple mono">{{ beat.scene }}</span>{% if beat.chapter %}<span class="pill gray">§ {{ beat.chapter }}</span>{% endif %}</div>
+      <div class="ops">
+        {% for op, label, tip in [("up","↑","Move up"),("down","↓","Move down"),("add","+","Add a beat after this one"),("delete","✕","Delete")] %}
+        <form method="post" action="/p/{{ slug }}/beats/{{ i }}/{{ op }}" {% if op == "delete" %}onsubmit="return confirm('Delete beat {{ i }}?')"{% endif %}>
+          <button class="icon-action {{ 'del' if op == 'delete' }}" title="{{ tip }}" aria-label="{{ tip }}">{{ label }}</button></form>
+        {% endfor %}
+      </div>
+    </div>
+    <form hx-post="/p/{{ slug }}/beats/{{ i }}" hx-target="#beat-{{ i }}" hx-swap="outerHTML" style="margin-top:18px">
+      <label class="field"><span>Voiceover narration</span><textarea name="text" rows="2">{{ beat.text }}</textarea></label>
+      <div class="beatform">
+        <label class="field"><span>Scene</span>
+          <select name="scene" hx-get="/p/{{ slug }}/beats/{{ i }}/fields" hx-target="#fields-{{ i }}" hx-trigger="change">
+            {% for t in templates_list() %}<option value="{{ t.name }}" {% if t.name == beat.scene %}selected{% endif %} title="{{ t.description }}">{{ t.name }}</option>{% endfor %}
+          </select></label>
+        <label class="field"><span>Chapter</span><input name="chapter" value="{{ beat.chapter or '' }}" placeholder="Optional · starts a YouTube chapter"></label>
+      </div>
+      <div class="params beatform" id="fields-{{ i }}">{% with fields = b.fields %}{% include "_fields.html" %}{% endwith %}</div>
+      <div class="flex" style="margin-top:4px;flex-wrap:wrap">
+        <button class="btn small" name="action" value="save">Save</button>
+        <button class="btn primary small" name="action" value="preview">✦ Save &amp; preview this beat</button>
+        {% if saved %}<span class="okmsg">✓ {{ saved }}</span>{% endif %}
+      </div>
+      {% if error %}<div class="alert err"><pre>{{ error }}</pre></div>{% endif %}
+    </form>
+    {% if beat.scene == "custom" %}
+    <form class="flex" style="margin-top:10px;flex-wrap:wrap" hx-post="/p/{{ slug }}/beats/{{ i }}/save-scene" hx-target="#lib-{{ i }}">
+      <input name="name" placeholder="library name, e.g. gap_fill" pattern="[a-z][a-z0-9_]{2,40}" required style="max-width:240px">
+      <button class="btn small" title="Reuse this scene in later videos as scene: name">Save scene to library</button>
+      <span id="lib-{{ i }}"></span>
+    </form>
+    {% endif %}
+  </div>
+  <div class="beatvisual">
+    <img src="/p/{{ slug }}/beats/{{ i }}/frame.jpg" alt="" loading="lazy" onerror="this.remove()">
+    <div class="noframe">Render a preview to see this beat here.</div>
+    <span class="pill purple">Beat {{ i }}{% if beats %} / {{ beats | length }}{% endif %}</span>
+  </div>
+</article>

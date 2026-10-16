@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% from "_ui.html" import icon, head %}
+{% block title %}Stats · Beatframe{% endblock %}
+{% block body %}
+{% call head("CHANNEL PERFORMANCE", "Know what resonates.", "Your channel's numbers as one text block. Copy it into the Claude chat with “yangi short script” or “yangi long script”.") %}
+  {% if yt.connected and yt.scope %}
+  <form hx-post="/stats/run" hx-target="#stats-out" hx-indicator="#stats-spin" class="flex">
+    <select name="days" style="width:auto" aria-label="Period"><option value="7">Last 7 days</option><option value="28" selected>Last 28 days</option><option value="90">Last 90 days</option></select>
+    <button class="btn primary" type="submit">{{ icon("refresh") }} Get statistics</button>
+  </form>
+  {% endif %}
+{% endcall %}
+
+{% if not yt.configured %}
+<section class="card cardpad"><div class="cardhead"><div><h2>YouTube</h2><p>Set up YouTube once (the steps are on any project's Publish tab), then come back here.</p></div><span class="pill gray">Not set up</span></div></section>
+{% elif not yt.connected %}
+<section class="card cardpad"><div class="cardhead"><div><h2>YouTube</h2><p>Connect the channel to read its statistics.</p></div><span class="pill gray">Not connected</span></div>
+  <a class="btn primary" href="/youtube/connect?next=/stats">Connect YouTube</a></section>
+{% elif not yt.scope %}
+<section class="card cardpad"><div class="cardhead"><div><h2>One more permission</h2><p>Uploads work, but the login does not allow reading statistics yet. Two steps, once:</p></div><span class="pill yellow">{{ yt.channel or "Connected" }}</span></div>
+  <ol class="steps-list">
+    <li>In Google Cloud{% if yt.secret.project %} (project <code>{{ yt.secret.project }}</code>){% endif %}, open <b>APIs &amp; Services → Library</b>, find <b>YouTube Analytics API</b> and press <b>Enable</b>.</li>
+    <li>Press <b>Reconnect YouTube</b> below and allow everything on Google's screen.</li>
+  </ol>
+  <a class="btn primary" href="/youtube/connect?next=/stats">Reconnect YouTube</a></section>
+{% else %}
+<div class="row" style="margin-bottom:22px">
+  <div class="flex"><span class="avatar">HU</span><div><h3>{{ yt.channel or "Your channel" }}</h3><span class="meta">YouTube connected{% if summary.days %} · last {{ summary.days }} days{% endif %}{% if last.when %} · report {{ last.when }}{% endif %}</span></div></div>
+  <span class="pill green"><span id="stats-spin" class="htmx-indicator">Reading YouTube… </span><span class="dot" style="margin-right:4px"></span>Live connection</span>
+</div>
+{% endif %}
+
+{% if summary.views is defined %}
+<div class="grid3" style="margin-bottom:20px">
+  <div class="chic-stat"><span>Views · last {{ summary.days }} days</span><b>{{ "{:,}".format(summary.views) }}</b><small>{{ summary.watch }} h watch time</small></div>
+  <div class="chic-stat"><span>Average % viewed</span><b>{{ summary.avg_viewed ~ "%" if summary.avg_viewed is not none else "—" }}</b><small>Across {{ summary.videos }} videos</small></div>
+  <div class="chic-stat"><span>Subscribers</span><b>{{ summary.subscribers if summary.subscribers is defined else "—" }}</b><small>{{ "%+d" | format(summary.subs) }} in the period · {{ summary.likes or 0 }} likes</small></div>
+</div>
+{% endif %}
+
+<div id="stats-out">{% include "_stats.html" %}</div>
+{% endblock %}

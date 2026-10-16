@@ -1,0 +1,70 @@
+title: You're Looking at Your Nose Right Now
+description: 'Your nose is in your view every second you are awake. Close one eye and look down: there
+  it is. Your brain edits it out because it never moves, so you only see the version of the world your
+  brain has cleaned up.
+
+
+  Did you see your nose just now? Yes or no?
+
+
+  Based on sensory adaptation: the brain stops reporting things that never change.
+
+  '
+tags:
+- perception
+- brain
+- vision
+- optical illusion
+- human body
+- psychology
+- shorts
+video:
+  format: short
+beats:
+- text: You're looking at your nose.
+  scene: stick_scene
+  params:
+    setting: plain
+    action: jump
+    bubble: eye
+    caption: You're looking at your nose
+  pad: 0.2
+  min_duration: 1.6
+- text: Right now. Every second you're awake.
+  scene: kinetic_text
+  params:
+    text: Right now. Every second.
+    highlight: every, second
+  pad: 0.2
+- text: Try it. Close one eye and look down.
+  scene: kinetic_text
+  params:
+    text: Close one eye. Look down.
+    highlight: close, look
+  pad: 0.5
+- text: See it? That blurry shape was always there.
+  scene: body_map
+  params:
+    part: eyes
+    label: your nose, always in view
+    caption: It was always there
+  pad: 0.2
+- text: Your brain deletes it, because it never moves.
+  scene: brain_light
+  params:
+    region: back
+    label: never moves = erased
+    caption: Your brain hides your nose
+  pad: 0.2
+- text: You don't see the world. You see your brain's edit.
+  scene: kinetic_text
+  params:
+    text: You see your brain's edit
+    highlight: edit
+  pad: 0.3
+- text: What else isn't what it seems?
+  scene: statement
+  params:
+    text: What else isn't what it seems?
+    highlight: seems
+    motif: orb

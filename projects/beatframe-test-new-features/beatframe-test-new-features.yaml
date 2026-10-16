@@ -1,0 +1,44 @@
+title: Beatframe Test - New Features
+beats:
+- text: Your brain fills the gap before you even notice it.
+  scene: custom
+  params:
+    theme: night
+    code: 'gap = Rectangle(width=5, height=2.4).set_stroke(PAPER, 4)
+
+      label = Text("?").scale(1.6).move_to(gap)
+
+      scene.play(Create(gap), FadeIn(label), run_time=0.6)
+
+      wait_until("fills")
+
+      scene.play(gap.animate.set_fill(GLOW, 0.85), FadeOut(label), run_time=0.5)
+
+      wait_until("notice")
+
+      scene.play(gap.animate.scale(1.15).set_fill(EMBER, 0.9), run_time=0.4)
+
+      '
+  chapter: Intro
+- text: In nineteen fifty three, one man lost the ability to make new memories.
+  scene: photo
+  params:
+    prompt: 1950s hospital room, a quiet man sitting by a bright window, warm light
+    caption: Patient H.M., 1953
+- text: New sentence for the narrator.
+  scene: statement
+  params:
+    text: New sentence for the narrator.
+- text: Every day felt like the first day of his life.
+  scene: kinetic_text
+  params:
+    text: Every day felt like the first day.
+    highlight: first
+- text: Three circles appear, one, two, and three.
+  scene: custom
+  params:
+    theme: bright
+    code: "dots = VGroup(*[Circle(radius=0.6).set_fill(c, 1).set_stroke(width=0)\n                for\
+      \ c in [\"#FB8500\", \"#EF476F\", \"#118AB2\"]]).arrange(RIGHT, buff=0.8)\nfor word, d in zip([\"\
+      one\", \"two\", \"three\"], dots):\n    wait_until(word)\n    scene.play(GrowFromCenter(d), run_time=0.3)\n"
+  chapter: Test

@@ -1,0 +1,91 @@
+title: Why Time Speeds Up As You Get Older
+description: 'When you were five, one year was a fifth of your whole life. At fifty it is two percent.
+  But the bigger reason time speeds up is your memory: your brain records new experiences in detail and
+  squeezes routine days into almost nothing. Looking back, a month full of new things feels long, and
+  a month of the same routine disappears.
+
+
+  Based on the "proportional" theory of time perception and research on memory and novelty (the holiday
+  paradox, described by psychologist Claudia Hammond).
+
+  '
+tags:
+- time perception
+- why time goes faster
+- memory
+- brain
+- psychology
+- human brain
+- shorts
+voice:
+  rate: -5%
+video:
+  format: short
+beats:
+- text: Why does every year feel shorter than the last?
+  scene: question_hook
+  params:
+    question: Why does every year feel shorter than the last?
+    highlight: shorter
+- text: You blink, and somehow it's December again.
+  scene: stick_scene
+  params:
+    setting: bedroom
+    action: freeze
+    bubble: clock
+    caption: Wasn't it just January?
+- text: When you were five, one year was a fifth of your whole life. At fifty, it's just two percent.
+  scene: bar_chart
+  params:
+    title: One year = how much of your life?
+    labels:
+    - Age 5
+    - Age 20
+    - Age 50
+    values:
+    - 20
+    - 5
+    - 2
+    unit: '%'
+    highlight: 0
+- text: But the bigger reason is your memory.
+  scene: kinetic_text
+  params:
+    text: The bigger reason is your memory
+    highlight: memory
+- text: Your brain records new experiences in rich detail, and squeezes routine days into almost nothing.
+  scene: brain_light
+  params:
+    region: center
+    label: new = remembered
+    caption: routine gets compressed
+- text: A week of the same routine leaves almost no memories. A week of new places leaves dozens.
+  scene: stick_compare
+  params:
+    title: What sticks
+    left_label: same routine
+    right_label: something new
+    left_icon: clock
+    right_icon: star
+    left_result: cross
+    right_result: check
+- text: So looking back, the routine years feel like they flew by.
+  scene: stick_scene
+  params:
+    setting: outdoor
+    action: shrug
+    bubble: question
+    caption: Where did the year go?
+- text: 'Want time to slow down? Give your brain something new: new places, new people, new skills.'
+  scene: icon_list
+  params:
+    title: Make time feel longer
+    items:
+    - globe|New places
+    - heart|New people
+    - bulb|New skills
+- text: Follow for more things your brain hides from you.
+  scene: kinetic_text
+  params:
+    text: Follow for more things your brain hides from you
+    highlight: brain

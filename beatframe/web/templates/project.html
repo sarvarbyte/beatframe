@@ -1,0 +1,275 @@
+{% extends "base.html" %}
+{% from "_ui.html" import icon, head, steps %}
+{% block title %}{{ project.title if project else slug }} · Beatframe{% endblock %}
+{% block body %}
+{% set spec = out.spec %}
+{% set busy = job and job.status in ("queued", "running") %}
+{% set imported = project and project.imported %}
+
+<a class="back" href="/projects">{{ icon("back") }} All projects</a>
+{% set sub %}{% if imported %}<span class="pill purple">Imported</span><span class="sep"></span>{{ spec.label }} {{ spec.aspect }}{% if project.made_with %}<span class="sep">·</span>made with {{ project.made_with }}{% endif %}{% elif project %}{{ project.beats | length }} beats<span class="sep">·</span>{% set v = out.final or out.preview %}{% if v and v.duration %}{{ fmt_secs(v.duration) }} duration<span class="sep">·</span>{% endif %}voice {{ project.voice.name if project.voice.provider == "edge" else project.voice.provider }}{% endif %}{% endset %}
+{% call head(("IMPORTED" if imported else "YOUR WORKSPACE") ~ " / " ~ ("SHORT" if spec.name == "short" else "LONG") ~ " VIDEO", project.title if project else slug, sub) %}
+  {% if project and not imported %}
+  <form method="post" action="/p/{{ slug }}/format" class="seg" role="radiogroup" aria-label="Video format">
+    <input type="hidden" name="tab" value="{{ tab }}">
+    {% for f in formats %}
+    <label class="{{ 'on' if f.name == out.fmt }}" title="{{ f.description }}">
+      <input type="radio" name="format" value="{{ f.name }}" {% if f.name == out.fmt %}checked{% endif %} {% if busy %}disabled{% endif %} onchange="this.form.submit()">
+      <span class="shape sm {{ f.name }}"></span>{{ f.label }}</label>
+    {% endfor %}
+  </form>
+  <button class="btn ghost" hx-post="/p/{{ slug }}/render" hx-vals='{"kind": "preview"}' hx-target="#job" hx-swap="outerHTML" {% if busy %}disabled{% endif %}>{{ icon("refresh") }} Render preview</button>
+  <button class="btn primary" hx-post="/p/{{ slug }}/render" hx-vals='{"kind": "make"}' hx-target="#job" hx-swap="outerHTML" {% if busy %}disabled{% endif %}>{{ icon("play") }} Render final</button>
+  {% endif %}
+{% endcall %}
+
+{% if note %}<div class="alert info" style="margin:-8px 0 20px">{{ note }}</div>{% endif %}
+{% if flow %}{{ steps(flow) }}{% endif %}
+
+<nav class="screen-tabs">
+  {% for t, label, ic in ([("video", "Video", "video"), ("script", "Import card", "code"), ("publish", "Publish", "send")] if imported else [("video", "Video", "video"), ("edit", "Edit beats", "beats"), ("script", "Script", "code"), ("publish", "Publish", "send")]) %}
+  <a href="/p/{{ slug }}?tab={{ t }}" class="{{ 'active' if tab == t }}">{{ icon(ic) }} {{ label }}</a>
+  {% endfor %}
+</nav>
+
+{% set show_job = job and (job.status != "done" or (job.kind == "beat" and tab == "edit") or (job.kind == "upload" and tab == "publish")) %}
+{% if show_job %}{% include "_job.html" %}{% else %}<div id="job" class="job"></div>{% endif %}
+
+{# ------------------------------------------------------------------ VIDEO #}
+{% if tab == "video" %}
+{% set v = out.final or out.preview %}
+<div class="grid2 cols-video">
+  <section class="card cardpad">
+    {% if v %}
+    <div class="cardhead"><div><h2>{{ "Final video" if out.final else "Video preview" }}</h2>
+      <p>{% if out.final %}Download it, check it, or publish it to YouTube.{% else %}Your story, ready for the next refinement.{% endif %}</p></div>
+      <span class="pill green"><span class="dot" style="margin-right:4px"></span>{{ "Final ready" if out.final else "Preview ready" }}</span></div>
+    <div class="video-layout {{ 'long' if spec.name == 'long' }}">
+      <div class="video-frame {{ spec.name }}"><video controls playsinline preload="metadata" src="/files/{{ slug }}/output/{{ v.name }}?v={{ v.mtime }}"></video></div>
+      <div class="stack" style="gap:13px">
+        <div class="kpi-grid">
+          <div class="kpi"><div class="kl">Format</div><b>{{ spec.label }} · {{ spec.aspect }}</b></div>
+          <div class="kpi"><div class="kl">Resolution</div><b>{{ v.width or "—" }}{% if v.width %} × {{ v.height }}{% endif %}</b></div>
+          <div class="kpi"><div class="kl">Duration</div><b>{{ fmt_secs(v.duration) or "—" }}</b></div>
+          <div class="kpi"><div class="kl">Video size</div><b>{{ fmt_size(v.size) }}</b></div>
+        </div>
+        <a class="btn primary wide" href="/files/{{ slug }}/output/{{ v.name }}" download>{{ icon("download") }} Download {{ "video" if out.final else "preview" }}</a>
+        {% if out.final and out.preview %}<a class="btn wide" href="/files/{{ slug }}/output/{{ out.preview.name }}?v={{ out.preview.mtime }}" target="_blank">{{ icon("eye") }} Open preview</a>{% endif %}
+        {% if out.final %}<a class="btn wide" href="/p/{{ slug }}?tab=publish"><span class="yt">{{ icon("yt") }}</span> Publish to YouTube</a>{% endif %}
+        {% if out["subtitles.srt"] or out["chapters.txt"] %}
+        <div class="assets"><div class="divider" style="margin:4px 0 10px"></div><div class="sectionlabel">Export assets</div>
+          {% for f in [out["subtitles.srt"], out["chapters.txt"]] %}{% if f %}
+          <div class="row"><span class="meta mono">{{ f.name }}</span><a class="dl" href="/files/{{ slug }}/output/{{ f.name }}" download title="Download">{{ icon("download") }}</a></div>{% endif %}{% endfor %}
+        </div>{% endif %}
+        {% for o in out.other %}{% if o.kind == "final" %}<p class="hint">There is also a {{ o.label }} ({{ o.aspect }}) final. Switch the format above to see it.</p>{% endif %}{% endfor %}
+      </div>
+    </div>
+    {% else %}
+    <div class="empty"><div class="glowdot"></div><h2>No {{ spec.label | lower }} video yet</h2>
+      <p>Render a quick 480p preview in {{ spec.aspect }}{% if out.other %}, or switch the format above: this project already has a {{ out.other[0].label }} {{ out.other[0].kind }}{% endif %}.</p>
+      {% if not busy %}<button class="btn primary" hx-post="/p/{{ slug }}/render" hx-vals='{"kind": "preview"}' hx-target="#job" hx-swap="outerHTML">{{ icon("refresh") }} Render preview</button>{% endif %}</div>
+    {% endif %}
+  </section>
+
+  {% if flow %}
+  <aside class="stack">
+    {% set n = flow.next %}
+    <div class="spotlight sweep">
+      <div class="eyebrow">{{ icon("spark") }} Recommended next step</div>
+      <h3>{{ n.title }}</h3>
+      <p>{{ n.text }}</p>
+      {% if n.action == "preview" %}<button class="btn primary" hx-post="/p/{{ slug }}/render" hx-vals='{"kind": "preview"}' hx-target="#job" hx-swap="outerHTML" {% if busy %}disabled{% endif %}>{{ n.label }} {{ icon("arrow") }}</button>
+      {% elif n.action == "final" %}<button class="btn primary" hx-post="/p/{{ slug }}/render" hx-vals='{"kind": "make"}' hx-target="#job" hx-swap="outerHTML" {% if busy %}disabled{% endif %}>{{ n.label }} {{ icon("arrow") }}</button>
+      {% elif n.action == "review" %}{% if rv.has_key %}<button class="btn primary" hx-post="/p/{{ slug }}/review" hx-target="#job" hx-swap="outerHTML" {% if busy %}disabled{% endif %}>{{ icon("spark") }} {{ n.label }}</button>{% else %}<a class="btn primary" href="/settings">Add an AI key {{ icon("arrow") }}</a>{% endif %}
+      {% elif n.action == "edit" %}<a class="btn primary" href="/p/{{ slug }}?tab=edit{% if n.beat %}#beat-{{ n.beat }}{% endif %}">{{ n.label }} {{ icon("arrow") }}</a>
+      {% elif n.action == "publish" %}<a class="btn primary" href="/p/{{ slug }}?tab=publish">{{ n.label }} {{ icon("arrow") }}</a>
+      {% else %}<a class="btn primary" href="/stats">{{ n.label }} {{ icon("arrow") }}</a>{% endif %}
+    </div>
+    <section class="card cardpad">
+      <div class="cardhead"><h3>Creation progress</h3><span class="pill purple">{{ flow.done }} of 5</span></div>
+      <div class="progresslist">
+        {% for s in flow.steps %}
+        <div class="row {{ s.state }}"><span><i class="ic">{{ "✓" if s.state == "done" else "✦" if s.state == "current" else "○" }}</i>{{ s.label }}</span>
+          <span class="meta">{{ "Done" if s.state == "done" else "Up next" if s.state == "current" else "Waiting" }}</span></div>
+        {% endfor %}
+      </div>
+    </section>
+  </aside>
+  {% endif %}
+</div>
+
+{% if v %}
+{% set r = rv.data.review if rv.data else none %}
+<section class="card cardpad" style="margin-top:20px" id="review">
+  <div class="cardhead">
+    <div><div class="eyebrow" style="margin-bottom:9px">INSIGHT ENGINE</div><h2>AI video review</h2><p>Feedback tied to exact beats and timestamps, judged against the channel's rules.</p></div>
+    {% if rv.has_key %}<button class="btn {{ 'ghost small' if r and not rv.stale else 'primary' }}" hx-post="/p/{{ slug }}/review" hx-target="#job" hx-swap="outerHTML" {% if busy %}disabled{% endif %}>{{ icon("spark") }} {{ "Review again" if r else "Review with AI" }}</button>{% endif %}
+  </div>
+  {% if not rv.has_key and not r %}
+  <div class="listnote">Add a free Gemini or OpenRouter key in <a class="linkbtn" href="/settings">Settings</a> to run a review.</div>
+  {% elif not r %}
+  <div class="empty-s"><div class="glowdot"></div><p>An AI (Gemini, or a free backup when Gemini is busy) watches the newest video and lists what to fix, beat by beat. Takes about a minute.</p></div>
+  {% else %}
+  {% if rv.stale %}<div class="alert warn" style="margin:0 0 16px">This review is for an older render ({{ rv.data.video }}). Run it again to check the new one.</div>{% endif %}
+  <div class="review-grid">
+    <div class="scorebox">
+      <div class="ai-score">
+        <div class="score-ring" style="--score: {{ r.score }}"><div><strong>{{ r.score }}<span>/10</span></strong><small>AI score</small></div></div>
+        <div><span class="pill {{ 'green' if r.verdict == 'ready' else 'yellow' }}">{{ "Ready" if r.verdict == "ready" else "Fix first" }}</span>
+          <div style="margin-top:12px;color:#b8c5df;font-size:12px;line-height:1.65">{{ "Good to publish." if r.verdict == "ready" else "Good foundation." }}<br>
+            <b style="color:#fff">{{ r.issues | length }} improvement{{ "s" if r.issues | length != 1 }}</b></div></div>
+      </div>
+      <div class="divider"></div>
+      <div class="sectionlabel">Review summary</div>
+      <p style="color:#aab7d2;line-height:1.7;font-size:12.5px">{{ r.summary }}</p>
+      <p class="hint" style="margin-top:12px"><b style="color:#c6d1e8">First 2 seconds:</b> {{ r.first_seconds }}</p>
+      {% if r.strengths %}<p class="hint"><b style="color:#c6d1e8">Works:</b> {{ r.strengths | join(" · ") }}</p>{% endif %}
+      <p class="meta mono" style="margin-top:18px">{{ rv.data.model }} · {{ rv.data.created[11:16] }}{% if rv.data.model.startswith("openrouter:") %} · backup model{% endif %}</p>
+    </div>
+    <div>
+      <div class="sectionlabel">PRIORITIZED ISSUES <span class="pill {{ 'red' if r.issues else 'green' }}" style="margin-left:6px">{{ r.issues | length }} found</span></div>
+      {% for it in r.issues %}
+      <div class="ai-issue">
+        <div class="severitybar {{ it.severity }}"></div>
+        <div style="flex:1;min-width:0">
+          <div class="row">
+            <span class="beatchip">
+              {% if it.beat and not imported %}<a class="beatlink" href="/p/{{ slug }}?tab=edit#beat-{{ it.beat }}">beat {{ it.beat }} ↗</a>{% else %}<span class="beatlink">{{ "at " ~ it.time if imported else "whole video" }}</span>{% endif %}
+              <span class="meta mono">{{ it.time }} · {{ it.category }}</span></span>
+            <span class="pill {{ 'red' if it.severity == 'high' else 'yellow' if it.severity == 'medium' else 'gray' }}">{{ it.severity }}</span>
+          </div>
+          <h3>{{ it.problem }}</h3>
+          <p class="fix">↳ {{ it.fix }}</p>
+          {% if it.new_text %}<p class="newtext">“{{ it.new_text }}”</p>{% endif %}
+        </div>
+      </div>
+      {% else %}<div class="listnote">No problems found.</div>{% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</section>
+{% endif %}
+
+{# ------------------------------------------------------------------ EDIT #}
+{% elif tab == "edit" %}
+<div class="row" style="margin-bottom:16px;align-items:flex-end">
+  <div><h2>Edit your beats</h2><p class="subtitle">Small changes, big difference. Preview one beat without re-rendering the whole video.</p></div>
+  <span class="pill purple">{{ beats | length }} beats in this story</span>
+</div>
+{% for b in beats %}{% include "_beat.html" %}{% endfor %}
+
+{# ------------------------------------------------------------------ SCRIPT #}
+{% elif tab == "script" %}
+{% if perr %}<div class="alert err" style="margin:0 0 16px"><strong>This script cannot be read</strong><pre>{{ perr }}</pre></div>{% endif %}
+<form class="card cardpad" hx-post="/p/{{ slug }}/script" hx-target="#check">
+  <div class="cardhead"><div><h2>{{ "Import card" if imported else "Full project script" }}</h2>
+    <p>{% if imported %}Title, description, tags and script are used for Publish and the AI review. The video itself stays as imported.{% else %}Edit the YAML source. Paste a whole new version to replace it; <code>video: {format: short}</code> makes it a Short.{% endif %}</p></div>
+    {% if not perr %}<span class="pill green">✓ Validated</span>{% endif %}</div>
+  <textarea name="script" class="code big" spellcheck="false" style="min-height:420px">{{ raw }}</textarea>
+  <div id="check"></div>
+  <div class="flex" style="margin-top:18px">
+    <button class="btn" name="action" value="save">Save</button>
+    {% if not imported %}<button class="btn primary" name="action" value="preview">{{ icon("play") }} Save &amp; render preview</button>{% endif %}
+  </div>
+</form>
+<form method="post" action="/p/{{ slug }}/delete" onsubmit="return confirm('Move this video to the trash folder?')" style="margin-top:14px;text-align:right">
+  <button class="btn danger small">Delete this video</button>
+</form>
+
+{# ------------------------------------------------------------------ PUBLISH #}
+{% elif tab == "publish" %}
+{% if not out.final %}
+<div class="alert warn" style="margin:0 0 20px">Render the final {{ spec.label | lower }} video first. Publishing uses <code>{{ "final" ~ ("_short" if spec.name == "short" else "") }}.mp4</code>.</div>
+{% elif spec.name == "short" %}
+<div class="listnote" style="margin-bottom:20px">✓ This vertical video is under 3 minutes, so YouTube will publish it as a Short.</div>
+{% endif %}
+{% if live %}<div class="banner ok" style="margin:0 0 20px">✓ {% if live.url %}Uploaded {{ live.uploaded }} as {{ live.privacy }}: <a class="linkbtn" href="{{ live.url }}" target="_blank">{{ live.url }}</a>{% else %}This video is live on the channel{% if live.views is not none %} · {{ "{:,}".format(live.views | int) }} views{% endif %}.{% endif %}</div>{% endif %}
+
+<div class="grid2 cols-publish">
+  <section class="card cardpad">
+    <div class="cardhead"><div><h2>Publish to YouTube</h2><p>Make your next discovery live on your channel.</p></div>
+      {% if yt.connected %}<span class="pill green"><span class="dot" style="margin-right:4px"></span>Connected</span>{% elif yt.configured %}<span class="pill gray">Not connected</span>{% else %}<span class="pill gray">Not set up</span>{% endif %}</div>
+    {% if not yt.configured %}
+      <p class="muted" style="font-size:12.5px;margin-bottom:10px">One-time setup (about 10 minutes):</p>
+      <ol class="steps-list">
+        <li>Open <a href="https://console.cloud.google.com/projectcreate" target="_blank">console.cloud.google.com</a> → create a project (e.g. <b>beatframe</b>).</li>
+        <li><a href="https://console.cloud.google.com/apis/library/youtube.googleapis.com" target="_blank">YouTube Data API v3</a> → <b>Enable</b>.</li>
+        <li><a href="https://console.cloud.google.com/auth/overview" target="_blank">Google Auth Platform</a> → <b>Get started</b>: app name, your email, audience <b>External</b>.</li>
+        <li><a href="https://console.cloud.google.com/auth/audience" target="_blank">Audience</a> → <b>Test users → Add users</b> → your Gmail.</li>
+        <li><a href="https://console.cloud.google.com/auth/clients" target="_blank">Clients</a> → <b>Create client</b> → type <b>Desktop app</b> → <b>Download JSON</b>.</li>
+        <li>Choose that file here:</li>
+      </ol>
+      <form method="post" action="/youtube/secret" enctype="multipart/form-data" class="flex" style="flex-wrap:wrap">
+        <input type="hidden" name="next" value="/p/{{ slug }}?tab=publish">
+        <input type="file" name="file" accept=".json,application/json" required style="flex:1">
+        <button class="btn primary small">Save client file</button>
+      </form>
+      <p class="hint">It is stored in <code>{{ yt.config_dir }}</code>, never inside the project.</p>
+    {% elif not yt.connected %}
+      {% if yt.secret.kind != "installed" %}<div class="alert warn" style="margin:0 0 14px">The client file looks like type “{{ yt.secret.kind }}”. Create a <b>Desktop app</b> OAuth client instead.</div>{% endif %}
+      <a class="btn primary" href="/youtube/connect?next=/p/{{ slug }}?tab=publish">Connect YouTube</a>
+      <p class="hint">You'll sign in with Google and allow Beatframe to upload to your channel.</p>
+    {% else %}
+      <div class="channelbox">
+        <div class="flex"><span class="avatar">HU</span><div><h3>{{ yt.channel or "Your channel" }}</h3><span class="meta">YouTube channel · Connected</span></div></div>
+        <form method="post" action="/youtube/disconnect"><input type="hidden" name="next" value="/p/{{ slug }}?tab=publish"><button class="btn ghost small">Disconnect</button></form>
+      </div>
+      <div class="alert warn">Until your Google Cloud project passes YouTube's API audit, YouTube locks every API upload to <b>Private</b>. The manual upload kit always works.</div>
+      <div class="divider"></div>
+      <form id="pubform" hx-post="/p/{{ slug }}/publish" hx-target="#job" hx-swap="outerHTML" hx-vals='js:{tz_offset: new Date().getTimezoneOffset()}'>
+        <label class="field"><span>Video title</span>
+          <div class="with-count"><input name="title" id="p-title" maxlength="100" value="{{ project.title }}"><span class="count" data-count="#p-title" data-max="100"></span></div></label>
+        <label class="field"><span>Description</span><textarea name="description" rows="6">{{ desc }}</textarea></label>
+        <label class="field"><span>Tags <em>· comma separated</em></span><input name="tags" value="{{ project.tags | join(', ') }}"></label>
+        <div class="beatform">
+          <label class="field"><span>Visibility</span>
+            <select name="privacy"><option value="public" selected>Public</option><option value="unlisted">Unlisted</option><option value="private">Private</option></select></label>
+          <label class="field"><span>Goes public at <em>· your time, empty = now</em></span><input type="datetime-local" name="publish_at" id="pub-at"></label>
+        </div>
+        <div class="divider" style="margin:6px 0 10px"></div>
+        <label class="switch">Add English subtitles from the script<input type="checkbox" name="captions" {% if out["subtitles.srt"] %}checked{% else %}disabled{% endif %}></label>
+        <label class="switch">Mark as altered or synthetic content<input type="checkbox" name="synthetic" {% if project.synthetic %}checked{% endif %}></label>
+        <button class="btn primary wide big sweep" style="margin-top:20px" {% if not out.final %}disabled{% endif %}><span>{{ icon("play") }}</span> Upload to {{ yt.channel or "my channel" }} {{ icon("arrow") }}</button>
+        <p class="hint" style="text-align:center">Goes public <b id="pub-when">at the next 18:30</b>.</p>
+      </form>
+      <script>
+        document.addEventListener("DOMContentLoaded", () => {
+          const HOUR = 18, MIN = 30;           // channel's best time (Tashkent)
+          const d = new Date(); d.setSeconds(0, 0);
+          const t = new Date(d); t.setHours(HOUR, MIN, 0, 0);
+          if (t - d < 20 * 60 * 1000) t.setDate(t.getDate() + 1);   // YouTube needs ~20 min for processing
+          const p = n => String(n).padStart(2, "0");
+          document.getElementById("pub-at").value = `${t.getFullYear()}-${p(t.getMonth() + 1)}-${p(t.getDate())}T${p(HOUR)}:${p(MIN)}`;
+          document.getElementById("pub-when").textContent = `${t.toDateString() === d.toDateString() ? "today" : "tomorrow"} at ${p(HOUR)}:${p(MIN)}`;
+        });
+      </script>
+    {% endif %}
+  </section>
+
+  <aside class="stack">
+    <section class="card cardpad">
+      <div class="cardhead"><h3>Video thumbnail</h3><span class="pill purple">Pick a frame</span></div>
+      {% if out.thumbs %}
+      <img class="bigthumb {{ spec.name }}" id="thumb-big" src="/files/{{ slug }}/output/{{ out.thumb_dir }}/{{ out.thumbs[0] }}" alt="">
+      <div class="thumbstrip {{ spec.name }}">
+        <label><input type="radio" name="thumb" value="" form="pubform" checked><span class="none">YouTube picks</span></label>
+        {% for t in out.thumbs %}<label><input type="radio" name="thumb" value="{{ t }}" form="pubform" onchange="document.getElementById('thumb-big').src=this.nextElementSibling.src"><img src="/files/{{ slug }}/output/{{ out.thumb_dir }}/{{ t }}" alt=""></label>{% endfor %}
+      </div>
+      <p class="hint">Frames from the final video. A custom thumbnail needs a verified channel.</p>
+      {% else %}<div class="empty-s"><div class="glowdot"></div><p>Thumbnail candidates appear after the final render.</p></div>{% endif %}
+    </section>
+    <section class="card cardpad">
+      <div class="cardhead"><h3>Manual upload kit</h3><span class="pill gray">Always available</span></div>
+      {% if out.final %}<div class="row"><span class="meta mono">{{ out.final.name }}</span><a class="btn small" href="/files/{{ slug }}/output/{{ out.final.name }}" download>{{ icon("download") }} Download</a></div><div class="divider" style="margin:12px 0"></div>{% endif %}
+      {% if out["subtitles.srt"] %}<div class="row"><span class="meta mono">subtitles.srt</span><a class="btn small" href="/files/{{ slug }}/output/subtitles.srt" download>{{ icon("download") }} Download</a></div><div class="divider" style="margin:12px 0"></div>{% endif %}
+      <div class="row"><span class="meta">Title</span><button class="btn small" type="button" data-copy="#m-title">{{ icon("copy") }} Copy</button></div>
+      <div class="divider" style="margin:12px 0"></div>
+      <div class="row"><span class="meta">Description</span><button class="btn small" type="button" data-copy="#m-desc">{{ icon("copy") }} Copy</button></div>
+      <div class="divider" style="margin:12px 0"></div>
+      <div class="row"><span class="meta">Tags</span><button class="btn small" type="button" data-copy="#m-tags">{{ icon("copy") }} Copy</button></div>
+      <textarea id="m-title" hidden>{{ project.title }}</textarea><textarea id="m-desc" hidden>{{ desc }}</textarea><textarea id="m-tags" hidden>{{ project.tags | join(', ') }}</textarea>
+    </section>
+  </aside>
+</div>
+{% endif %}
+{% endblock %}
