@@ -1,30 +1,42 @@
 {% from "_ui.html" import icon %}<!doctype html>
 <html lang="en">
 <head>
+  <script>
+    // theme before first paint: "light" (default), "night", or "system" (follows the computer's setting)
+    (function () {
+      let t = "light"; try { t = localStorage.getItem("bf-theme") || "light"; } catch (e) {}
+      const dark = t === "night" || (t === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
+      if (dark) document.documentElement.dataset.theme = "night";
+      document.documentElement.dataset.themePref = t;
+    })();
+  </script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}Beatframe Studio{% endblock %}</title>
   <link rel="icon" href="/static/icon.png">
-  <link rel="stylesheet" href="/static/style.css?v=20">
+  <link rel="stylesheet" href="/static/style.css?v=32">
+  <meta name="theme-color" content="#f6f6fd">
   <script src="/static/htmx.min.js"></script>
 </head>
 <body>
 <div class="app">
   <div class="navscrim" onclick="document.body.classList.remove('menu-open')"></div>
   <aside class="side" id="side">
-    <a class="logo" href="/"><span class="logotile">{{ icon("play") }}</span>Beatframe</a>
-    <div class="navcaption">WORKSPACE</div>
+    <a class="logo" href="/"><span class="logotile">{{ icon("play") }}</span><span>Beatframe<i class="logo-ribbon"></i></span></a>
+    <div class="navcaption">Workspace</div>
     <nav class="nav">
-      {% for key, href, label in [("studio", "/", "Studio"), ("projects", "/projects", "Projects"), ("stats", "/stats", "Stats"),
+      {% for key, href, label in [("studio", "/", "Studio"), ("projects", "/projects", "Projects"), ("ideas", "/ideas", "Ideas"),
+                                  ("stats", "/stats", "Stats"), ("quality", "/quality", "AI quality"),
                                   ("templates", "/templates", "Templates"), ("settings", "/settings", "Settings")] %}
-      <a href="{{ href }}" class="{{ 'active' if nav == key }}">{{ icon(key) }}{{ label }}{% if key == "projects" %}<span class="navcount">{{ "%02d" | format(project_count) }}</span>{% endif %}</a>
+      <a href="{{ href }}" class="{{ 'active' if nav == key }}">{{ icon(key) }}{{ label }}{% if key == "projects" %}<span class="navcount">{{ project_count }}</span>{% endif %}</a>
       {% endfor %}
     </nav>
+    <button class="kbd-hint" type="button" data-palette>Jump to anything <kbd>Ctrl K</kbd></button>
     <div class="side-bottom">
       <div class="side-spot">
         <b>Make the invisible<br>unforgettable.</b>
         <span>Your creative engine, from first word to final frame.</span>
-        <a href="/">Start creating →</a>
+        <a href="/">Start a new video</a>
       </div>
       <a class="identity" href="/settings">
         <span class="avatar">HU</span>
@@ -40,9 +52,14 @@
       <div class="flex">
         <button class="mobile-menu" type="button" aria-label="Menu" onclick="document.body.classList.toggle('menu-open')">
           <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
-        <div class="breadcrumb">WORKSPACE <span>/</span> <b>{{ crumb or "Studio" }}</b></div>
+        <div class="breadcrumb">Workspace <span>/</span> <b>{{ crumb or "Studio" }}</b></div>
       </div>
       <div class="topright">
+        <button class="searchbtn" type="button" data-palette>{{ icon("spark") }}<span>Search projects and pages</span><kbd>Ctrl K</kbd></button>
+        <button class="themebtn" type="button" id="themeBtn" title="Theme" aria-label="Change theme: light, night or system">
+          <svg class="t-light" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5m0 14v2.5M2.5 12H5m14 0h2.5M5.3 5.3l1.8 1.8m9.8 9.8 1.8 1.8M18.7 5.3l-1.8 1.8M7.1 16.9l-1.8 1.8"/></svg>
+          <svg class="t-night" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
+          <svg class="t-system" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></button>
         {% if busy_job %}
         <span class="topstatus"><span class="dot busy"></span><span class="lbl">{{ "Uploading" if busy_job.kind == "upload" else "Reviewing" if busy_job.kind == "review" else "Rendering" }}</span><a href="/p/{{ busy_job.slug }}">{{ (busy_job.progress * 100) | round | int }}%</a></span>
         {% else %}
@@ -53,18 +70,139 @@
     </div>
     <div class="content">
       {% block body %}{% endblock %}
-      <div class="footerline">Beatframe Studio v{{ version }} · Built for Human Unknowns</div>
+      <div class="footerline">Beatframe Studio v{{ version }}, built for Human Unknowns</div>
     </div>
   </main>
+  <nav class="tabbar" aria-label="Sections">
+    {% for key, href, label in [("studio", "/", "Studio"), ("projects", "/projects", "Projects"), ("ideas", "/ideas", "Ideas"),
+                                ("stats", "/stats", "Stats"), ("settings", "/settings", "Settings")] %}
+    <a href="{{ href }}" class="{{ 'active' if nav == key }}">{{ icon(key) }}{{ label }}</a>
+    {% endfor %}
+  </nav>
+</div>
+
+<div class="palette" id="palette" hidden role="dialog" aria-modal="true" aria-label="Jump to">
+  <div class="palette-box">
+    <input id="paletteInput" placeholder="Type a project, a page or an action" autocomplete="off" spellcheck="false">
+    <div class="palette-list" id="paletteList"></div>
+  </div>
 </div>
 <script>
   // copy buttons: <button data-copy="#id">
+  function toast(msg) {
+    document.querySelectorAll(".toast").forEach(t => t.remove());
+    const t = document.createElement("div"); t.className = "toast"; t.textContent = msg; t.setAttribute("role", "status");
+    document.body.appendChild(t); setTimeout(() => t.remove(), 2500);
+  }
   document.addEventListener("click", e => {
     const b = e.target.closest("[data-copy]");
     if (!b) return;
     const el = document.querySelector(b.dataset.copy);
     navigator.clipboard.writeText(el.value ?? el.textContent);
     const t = b.innerHTML; b.textContent = "Copied"; setTimeout(() => b.innerHTML = t, 1200);
+    toast("Copied to the clipboard");
+  });
+
+  // theme: "light" (default), "night", or "system" (follows the computer, live) — remembered in this browser
+  const themeBtn = document.getElementById("themeBtn");
+  const darkQuery = matchMedia("(prefers-color-scheme: dark)");
+  const THEME_NAME = { light: "Light theme", night: "Night theme", system: "System theme (follows your computer)" };
+  const themePref = () => document.documentElement.dataset.themePref || "light";
+  function applyTheme() {
+    const t = themePref(), dark = t === "night" || (t === "system" && darkQuery.matches);
+    if (dark) document.documentElement.dataset.theme = "night"; else delete document.documentElement.dataset.theme;
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", dark ? "#12131f" : "#f6f6fd");
+    themeBtn.dataset.mode = t; themeBtn.title = THEME_NAME[t] + " · click to change";
+    document.querySelectorAll("[data-theme-pick]").forEach(c => c.classList.toggle("on", c.dataset.themePick === t));
+  }
+  function setTheme(t) {
+    if (!THEME_NAME[t]) t = "light";
+    document.documentElement.dataset.themePref = t;
+    try { localStorage.setItem("bf-theme", t); } catch (e) {}
+    applyTheme();
+  }
+  darkQuery.addEventListener("change", () => { if (themePref() === "system") applyTheme(); });   // OS switched light/dark
+  themeBtn.addEventListener("click", () => { const order = ["light", "night", "system"]; setTheme(order[(order.indexOf(themePref()) + 1) % 3]); toast(THEME_NAME[themePref()]); });
+  document.addEventListener("click", e => { const c = e.target.closest("[data-theme-pick]"); if (c) setTheme(c.dataset.themePick); });
+  document.addEventListener("DOMContentLoaded", applyTheme);
+
+  // numbers count up once when a page opens: <b data-countup>1,234</b> (any number inside text)
+  const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function countUp(root) {
+    if (calm) return;
+    root.querySelectorAll(".chic-stat b, [data-countup]").forEach(el => {
+      if (el._counted) return; el._counted = true;
+      const node = [...el.childNodes].find(n => n.nodeType === 3 && /\d/.test(n.textContent));
+      if (!node) return;
+      const m = node.textContent.match(/[\d,]+(\.\d+)?/); if (!m) return;
+      const raw = m[0], target = parseFloat(raw.replace(/,/g, "")), dec = (m[1] || "").length - (m[1] ? 1 : 0);
+      const pad = /^0\d/.test(raw) ? raw.length : 0, t0 = performance.now(), dur = 900;
+      const fmt = v => { let s = dec ? v.toFixed(dec) : Math.round(v).toLocaleString("en-US"); return pad ? s.padStart(pad, "0") : s; };
+      const step = now => { const k = Math.min(1, Math.max(0, (now - t0) / dur)), e = 1 - Math.pow(1 - k, 3);
+        node.textContent = node.textContent.replace(/[\d,]+(\.\d+)?/, fmt(target * e)); if (k < 1) requestAnimationFrame(step); };
+      node.textContent = node.textContent.replace(raw, fmt(0)); requestAnimationFrame(step);
+    });
+  }
+  document.addEventListener("DOMContentLoaded", () => countUp(document));
+
+  // command palette: Ctrl/⌘+K or "/"
+  const pal = document.getElementById("palette"), palIn = document.getElementById("paletteInput"), palList = document.getElementById("paletteList");
+  const ICON = {
+    go: '<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+    plus: '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+    film: '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m10 9 5 3-5 3z"/></svg>',
+    moon: '<svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>',
+  };
+  const ACTIONS = [
+    { group: "Create", label: "New video from a script", hint: "Studio", href: "/", icon: "plus" },
+    { group: "Create", label: "New Short (9:16)", hint: "Studio", href: "/?format=short", icon: "plus" },
+    { group: "Create", label: "Import a finished video", hint: "Studio", href: "/?mode=import", icon: "plus" },
+    { group: "Go to", label: "Projects", href: "/projects", icon: "go" },
+    { group: "Go to", label: "Ideas and content plan", href: "/ideas", icon: "go" },
+    { group: "Go to", label: "AI quality history", href: "/quality", icon: "go" },
+    { group: "Go to", label: "Stats for Claude", href: "/stats", icon: "go" },
+    { group: "Go to", label: "Scene templates", href: "/templates", icon: "go" },
+    { group: "Go to", label: "Settings", href: "/settings", icon: "go" },
+    { group: "Appearance", label: "Light theme", run: () => setTheme("light"), icon: "moon" },
+    { group: "Appearance", label: "Night theme", run: () => setTheme("night"), icon: "moon" },
+    { group: "Appearance", label: "System theme (follow the computer)", run: () => setTheme("system"), icon: "moon" },
+  ];
+  let palItems = [], palSel = 0, palProjects = null;
+  async function loadProjects() {
+    if (palProjects) return;
+    try { palProjects = (await (await fetch("/api/palette")).json()).projects
+        .map(p => ({ group: "Projects", label: p.title, hint: p.fmt === "short" ? "Short" : "Long", href: "/p/" + p.slug, icon: "film" })); }
+    catch (e) { palProjects = []; }
+  }
+  function renderPalette() {
+    const q = palIn.value.trim().toLowerCase();
+    const all = [...ACTIONS, ...(palProjects || [])];
+    palItems = all.filter(a => !q || a.label.toLowerCase().includes(q) || (a.hint || "").toLowerCase().includes(q)).slice(0, 40);
+    palSel = Math.min(palSel, Math.max(0, palItems.length - 1));
+    let html = "", last = "";
+    palItems.forEach((a, i) => {
+      if (a.group !== last) { html += `<div class="palette-group">${a.group}</div>`; last = a.group; }
+      const label = a.label.replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+      html += `<button class="palette-item${i === palSel ? " sel" : ""}" data-i="${i}" type="button"><span class="pi">${ICON[a.icon]}</span>${label}${a.hint ? `<small>${a.hint}</small>` : ""}</button>`;
+    });
+    palList.innerHTML = html || `<div class="palette-empty">Nothing matches “${palIn.value.replace(/[&<>]/g, "")}”. Try a project title.</div>`;
+    palList.querySelector(".sel")?.scrollIntoView({ block: "nearest" });
+  }
+  function runItem(a) { if (!a) return; closePalette(); if (a.run) a.run(); else location.href = a.href; }
+  async function openPalette() { pal.hidden = false; palIn.value = ""; palSel = 0; renderPalette(); palIn.focus(); await loadProjects(); renderPalette(); }
+  function closePalette() { pal.hidden = true; }
+  document.addEventListener("click", e => { if (e.target.closest("[data-palette]")) openPalette(); else if (e.target === pal) closePalette(); });
+  palList.addEventListener("click", e => { const b = e.target.closest(".palette-item"); if (b) runItem(palItems[+b.dataset.i]); });
+  palList.addEventListener("mousemove", e => { const b = e.target.closest(".palette-item"); if (b && +b.dataset.i !== palSel) { palSel = +b.dataset.i; renderPalette(); } });
+  palIn.addEventListener("input", () => { palSel = 0; renderPalette(); });
+  document.addEventListener("keydown", e => {
+    const typing = /INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName) && document.activeElement !== palIn;
+    if ((e.key === "k" && (e.ctrlKey || e.metaKey)) || (e.key === "/" && !typing && pal.hidden)) { e.preventDefault(); pal.hidden ? openPalette() : closePalette(); return; }
+    if (pal.hidden) return;
+    if (e.key === "Escape") closePalette();
+    else if (e.key === "ArrowDown") { e.preventDefault(); palSel = (palSel + 1) % Math.max(1, palItems.length); renderPalette(); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); palSel = (palSel - 1 + palItems.length) % Math.max(1, palItems.length); renderPalette(); }
+    else if (e.key === "Enter") { e.preventDefault(); runItem(palItems[palSel]); }
   });
   // character counters: <span data-count="#id" data-max="100">
   function counters() {

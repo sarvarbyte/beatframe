@@ -2,7 +2,7 @@
 {% from "_ui.html" import head %}
 {% block title %}Settings · Beatframe{% endblock %}
 {% block body %}
-{% call head("YOUR WORKSPACE", "Settings", "Your channel, AI integrations and local studio preferences.") %}{% endcall %}
+{% call head("", "Settings", "Your channel, AI integrations and local studio preferences.") %}{% endcall %}
 <div class="settings-list">
   <section class="card cardpad">
     <div class="cardhead"><div><h2>YouTube connection</h2><p>Upload and schedule videos directly.</p></div>
@@ -26,7 +26,7 @@
         ("openrouter", "2. OpenRouter (backup)", "https://openrouter.ai/settings/keys", "openrouter.ai/settings/keys")] %}
     {% set k = ai[p] %}
     <div class="keyrow">
-      <div class="row"><span style="font-size:12.5px;color:#c6d1e8">{{ label }}</span>
+      <div class="row"><span style="font-size:12.5px;color:var(--text-2)">{{ label }}</span>
         {% if k.has_key %}<span class="pill green">Key set</span>{% else %}<span class="pill yellow">Not set</span>{% endif %}</div>
       <a class="meta" href="{{ url }}" target="_blank">Free key: {{ hint }} ↗</a>
       {% if k.from_env %}<p class="hint">Using <code>{{ k.env }}</code> from the environment.</p>{% endif %}
@@ -37,6 +37,15 @@
     </div>
     {% endfor %}
     <p class="hint">Keys are saved in <code>~/.beatframe/</code> (only your user can read them), never inside a project.</p>
+  </section>
+
+  <section class="card cardpad">
+    <div class="cardhead"><div><h2>Appearance</h2><p>Remembered in this browser. System follows your computer's light or dark setting and switches with it.</p></div></div>
+    <div class="themes">
+      <button type="button" class="themecard light" data-theme-pick="light"><i></i><b>Light</b></button>
+      <button type="button" class="themecard night" data-theme-pick="night"><i></i><b>Night</b></button>
+      <button type="button" class="themecard system" data-theme-pick="system"><i></i><b>System</b></button>
+    </div>
   </section>
 
   <section class="card cardpad">

@@ -121,3 +121,33 @@ def workflow(project, out: dict, review: dict | None, review_stale: bool, live: 
         nxt = {"title": "It's live", "text": (f"{int(views):,} views so far. " if views is not None else "") +
                "Check the numbers on the Stats page after 48 hours.", "action": "stats", "label": "Open Stats"}
     return {"steps": steps, "done": sum(done), "current": current, "next": nxt}
+
+
+def _mmss_to_s(v: str) -> float | None:
+    m = re.fullmatch(r"(\d+):(\d{2})", (v or "").strip())
+    return int(m.group(1)) * 60 + int(m.group(2)) if m else None
+
+
+def report_table(text: str) -> list[dict]:
+    """Every video row of a Stats report, read by its header (works with or without 'engaged'),
+    for the interactive charts. Values the report shows as '-' stay None."""
+    rows, head = [], None
+    for line in (text or "").splitlines():
+        if line.startswith("type |"):
+            head = [h.strip() for h in line.split(" | ")]
+            continue
+        if not head or " | " not in line:
+            continue
+        cells = [c.strip() for c in line.split(" | ")]
+        if len(cells) != len(head):
+            continue
+        r = dict(zip(head, cells))
+        rows.append({
+            "type": "short" if r.get("type") == "S" else "long", "published": r.get("published", ""),
+            "age": r.get("age", ""), "length": _mmss_to_s(r.get("length", "")), "title": r.get("title", ""),
+            "views": _num(r.get("views", "-")), "engaged": _num(r.get("engaged", "-")) if "engaged" in r else None,
+            "avg_view": _mmss_to_s(r.get("avg view", "")), "viewed": _num(r.get("% viewed", "-")),
+            "likes": _num(r.get("likes", "-")), "comments": _num(r.get("comments", "-")),
+            "subs": _num(r.get("subs", "-").lstrip("+")), "status": r.get("status", ""),
+        })
+    return rows

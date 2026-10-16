@@ -155,9 +155,32 @@ def create_app(projects_root: Path, port: int = 8000) -> FastAPI:
                     script=script, error=error, title=title, fmt=get_format(fmt).name, render=render,
                     mode="import" if mode == "import" else "create", card=card, card_example=importer.CARD_EXAMPLE)
 
+    @app.get("/api/palette")
+    def palette_data():
+        """Projects for the command palette (Ctrl/⌘+K): just titles, newest first, no video probing."""
+        import yaml as _yaml
+        out = []
+        files = [f for f in store.root.glob("*/*.yaml") if f.stem == f.parent.name]
+        for f in sorted(files, key=lambda f: -f.stat().st_mtime)[:60]:
+            try:
+                data = _yaml.safe_load(f.read_text(encoding="utf-8")) or {}
+            except Exception:  # noqa: BLE001
+                data = {}
+            fmt = str((data.get("video") or {}).get("format") or "long")
+            out.append({"slug": f.stem, "title": str(data.get("title") or f.stem), "fmt": fmt})
+        return {"projects": out}
+
     @app.get("/", response_class=HTMLResponse)
-    def home(request: Request, format: str = "long", mode: str = "create"):
-        return home_page(request, fmt=format if format in FORMATS else "long", mode=mode)
+    def home(request: Request, format: str = "long", mode: str = "create", idea: str = ""):
+        script = ""
+        if idea:      # a script drafted on the Ideas page, opened here for checking before Generate
+            from beatframe import planner
+            it = planner.get(store.root, idea)
+            if it and it["kind"] == "script":
+                script = it["payload"].get("yaml", "")
+                if "format: short" in script:
+                    format = "short"
+        return home_page(request, fmt=format if format in FORMATS else "long", mode=mode, script=script)
 
     @app.post("/check-import", response_class=HTMLResponse)
     def check_import(request: Request, card: str = Form("")):
@@ -205,7 +228,8 @@ def create_app(projects_root: Path, port: int = 8000) -> FastAPI:
     def stats_page(request: Request):
         last = stats.last_report()
         return page(request, "stats.html", nav="stats", crumb="Stats", yt=stats_ctx(), last=last,
-                    summary=insights.report_summary(last.get("text", "")))
+                    summary=insights.report_summary(last.get("text", "")),
+                    rows=insights.report_table(last.get("text", "")))
 
     @app.post("/stats/run", response_class=HTMLResponse)
     def stats_run(request: Request, days: int = Form(28)):
@@ -244,7 +268,8 @@ def create_app(projects_root: Path, port: int = 8000) -> FastAPI:
 
     # ------------------------------------------------------------- project
     @app.get("/p/{slug}", response_class=HTMLResponse)
-    def project_page(request: Request, slug: str, tab: str = "video", note: str = ""):
+    def project_page(request: Request, slug: str, tab: str = "video", note: str = "", lab_error: str = "",
+                     source: str = "", made: str = "", a: str = "", b: str = ""):
         slug = get_slug(slug)
         try:
             project, perr = store.load(slug), ""
@@ -265,9 +290,11 @@ def create_app(projects_root: Path, port: int = 8000) -> FastAPI:
             flow = insights.workflow(project, out, rv["data"], rv.get("stale", False), live,
                                      tips=len(script_advice(project)) if not project.imported else 0)
         return page(
-            request, "project.html", nav="projects", crumb="Project · " + {"edit": "Edit beats", "script": "Script",
-                                                                          "publish": "Publish"}.get(tab, "Video"),
+            request, "project.html", nav="projects", crumb="Project · " + {"edit": "Edit beats", "script": "Script", "publish": "Publish",
+                                                                          "storyboard": "Storyboard", "thumbs": "Thumbnail Lab",
+                                                                          "compare": "Compare"}.get(tab, "Video"),
             slug=slug, project=project, perr=perr, tab=tab, out=out, beats=beats, flow=flow, live=live,
+            lab_error=lab_error[:200], lab_source=source, lab_made=made, cmp_a=a, cmp_b=b,
             raw=store.raw(slug), job=jobs.latest(slug), desc=desc, rv=rv, note=note[:300],
             yt={"configured": youtube.is_configured(), "connected": youtube.is_connected() if tab == "publish" else None,
                 "channel": youtube.channel_name() if tab == "publish" and youtube.is_connected() else "",
@@ -525,6 +552,8 @@ def create_app(projects_root: Path, port: int = 8000) -> FastAPI:
         youtube.disconnect()
         return RedirectResponse(next, status_code=303)
 
+    from beatframe.web.features import register
+    register(app, store=store, jobs=jobs, page=page, get_slug=get_slug, tpl=tpl)
     return app
 
 

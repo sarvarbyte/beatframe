@@ -2,7 +2,7 @@
 {% from "_ui.html" import icon, head %}
 {% block title %}Stats · Beatframe{% endblock %}
 {% block body %}
-{% call head("CHANNEL PERFORMANCE", "Know what resonates.", "Your channel's numbers as one text block. Copy it into the Claude chat with “yangi short script” or “yangi long script”.") %}
+{% call head("", "Channel stats", "Your channel's numbers as one text block. Copy it into the Claude chat with “yangi short script” or “yangi long script”.") %}
   {% if yt.connected and yt.scope %}
   <form hx-post="/stats/run" hx-target="#stats-out" hx-indicator="#stats-spin" class="flex">
     <select name="days" style="width:auto" aria-label="Period"><option value="7">Last 7 days</option><option value="28" selected>Last 28 days</option><option value="90">Last 90 days</option></select>
@@ -36,6 +36,29 @@
   <div class="chic-stat"><span>Average % viewed</span><b>{{ summary.avg_viewed ~ "%" if summary.avg_viewed is not none else "—" }}</b><small>Across {{ summary.videos }} videos</small></div>
   <div class="chic-stat"><span>Subscribers</span><b>{{ summary.subscribers if summary.subscribers is defined else "—" }}</b><small>{{ "%+d" | format(summary.subs) }} in the period · {{ summary.likes or 0 }} likes</small></div>
 </div>
+{% endif %}
+
+{% if rows %}
+<section class="card cardpad" id="analytics" style="margin-bottom:20px">
+  <div class="cardhead"><div><h2>Video performance</h2><p>From the report of {{ last.when }} · {{ rows | length }} videos. Hover or tab to a bar or dot for its numbers.</p></div>
+    <div class="flex" style="gap:8px;flex-wrap:wrap">
+      <div class="seg sm" id="aType" role="tablist" aria-label="Type"><button type="button" class="on" data-f="all">All</button><button type="button" data-f="short">Shorts</button><button type="button" data-f="long">Long</button></div>
+      <select id="aMetric" aria-label="Measure" style="width:auto">
+        <option value="views">Views</option><option value="viewed">% viewed</option><option value="avg_view">Average view (s)</option>
+        <option value="likes">Likes</option>{% if rows | selectattr("engaged") | list %}<option value="engaged">Engaged views</option>{% endif %}<option value="subs">Subscribers gained</option></select>
+    </div></div>
+  <div class="chart" id="aBars" role="img" aria-label="Per-video bar chart"></div>
+  <div class="divider"></div>
+  <div class="cardhead"><div><h3>Reach vs. retention</h3><p>Each dot is a video: views across, % viewed up. Top-right videos both reached people and kept them.</p></div>
+    <div class="legend"><span><i class="sw dot-short"></i>Short</span><span><i class="sw dot-long"></i>Long</span></div></div>
+  <div class="chart" id="aScatter" role="img" aria-label="Views versus percent viewed"></div>
+  <details class="adv"><summary>{{ icon("beats") }} Table view {{ icon("chev") }}</summary>
+    <div class="atable"><table><thead><tr><th>Video</th><th>Type</th><th>Published</th><th>Views</th><th>% viewed</th><th>Avg view</th><th>Likes</th><th>Status</th></tr></thead><tbody>
+      {% for r in rows %}<tr><td>{{ r.title }}</td><td>{{ "Short" if r.type == "short" else "Long" }}</td><td>{{ r.published }}</td><td>{{ "{:,}".format(r.views | int) if r.views is not none else "—" }}</td><td>{{ r.viewed ~ "%" if r.viewed is not none else "—" }}</td><td>{{ fmt_secs(r.avg_view) if r.avg_view else "—" }}</td><td>{{ r.likes | int if r.likes is not none else "—" }}</td><td>{{ r.status }}</td></tr>{% endfor %}
+    </tbody></table></div></details>
+</section>
+<script type="application/json" id="adata">{{ tojson_safe(rows) | safe }}</script>
+<script src="/static/studio.js?v=1" defer></script>
 {% endif %}
 
 <div id="stats-out">{% include "_stats.html" %}</div>

@@ -213,8 +213,12 @@ def run(
             picture, sel_durs, [""] + kinds, build / (("joined_preview" if preview else "joined") + fmt.suffix + ".mp4"),
             fps, d=video.transition_seconds * (0.7 if fmt.vertical else 1.0), fast=preview)
         picture = [joined]
-    assemble.build_video(picture, audio, out_video, captions=ass,
-                         fonts_dir=brand.FONT_DIR, fast=preview)
+    # build next to the old video first; only a finished render replaces it (the old one is kept for Compare)
+    fresh = out_video.with_name(out_video.stem + ".new.mp4")
+    assemble.build_video(picture, audio, fresh, captions=ass, fonts_dir=brand.FONT_DIR, fast=preview)
+    from beatframe import versions
+    versions.archive(out_video)
+    fresh.replace(out_video)
 
     if not preview and not only:
         report("extras")

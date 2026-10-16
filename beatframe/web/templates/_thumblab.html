@@ -1,0 +1,99 @@
+{# Thumbnail Lab: design variants from the video's own frames, compare them at feed size, choose one for Publish. #}
+{% set lab = lab_ctx(slug, out.fmt) %}
+{% set first_source = lab_source if lab_source in lab.sources else (lab.sources[0] if lab.sources else "") %}
+{% if lab_error %}<div class="alert err" style="margin:0 0 16px">{{ lab_error }}</div>{% endif %}
+
+{% if not lab.sources and not lab.video %}
+<section class="card cardpad empty">
+  <div class="glowdot"></div>
+  <h2>No frames to design with yet</h2>
+  <p>Thumbnails are made from the video's own frames. Render a preview or the final, then come back.</p>
+</section>
+{% else %}
+<div class="lab" id="lab" data-slug="{{ slug }}" data-fmt="{{ spec.name }}">
+  <section class="card cardpad lab-editor">
+    <div class="cardhead"><div><h2>Design a thumbnail</h2><p>Pick a frame, add a few words, see it at feed size. Saved variants can be chosen for Publish.</p></div>
+      <span class="pill purple">{{ "1080 × 1920" if spec.name == "short" else "1280 × 720" }}</span></div>
+
+    <form id="labForm" method="post" action="/p/{{ slug }}/thumbs/variant" class="lab-grid">
+      <input type="hidden" name="replace" id="labReplace" value="">
+      <div class="lab-preview-wrap">
+        <div class="lab-preview {{ spec.name }}">
+          <img id="labPreview" alt="Thumbnail preview" {% if first_source %}src="/p/{{ slug }}/thumbs/preview.jpg?source={{ first_source }}"{% endif %}>
+          <span class="lab-loading" id="labLoading">Updating…</span>
+        </div>
+        <div class="sectionlabel" style="margin-top:14px">Picture</div>
+        <div class="lab-sources {{ spec.name }}" role="radiogroup" aria-label="Frame">
+          {% for f in lab.sources %}
+          <label><input type="radio" name="source" value="{{ f }}" {% if f == first_source %}checked{% endif %}><img src="/files/{{ slug }}/output/{{ lab.dir }}/{{ f }}" alt="" loading="lazy"></label>
+          {% endfor %}
+        </div>
+        {% if lab.video %}
+        <div class="lab-grab">
+          <label class="fieldlabel" for="grabAt">Take a frame from the video at <b id="grabLabel">0.0 s</b></label>
+          <input type="range" id="grabAt" min="0" max="{{ (lab.duration or 10) | round(1) }}" step="0.1" value="{{ ((lab.duration or 10) * 0.3) | round(1) }}">
+          <button class="btn small" type="submit" form="grabForm">{{ icon("plus") }} Add this frame</button>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="lab-controls">
+        <label class="field"><span>Big text <em>· 2-4 words work best</em></span><input name="text" maxlength="60" placeholder="YOUR NOSE IS INVISIBLE"></label>
+        <label class="field"><span>Small line <em>· optional</em></span><input name="sub" maxlength="80" placeholder="Your brain hides it"></label>
+        <div class="beatform">
+          <label class="field"><span>Position</span><select name="position"><option value="bottom">Bottom</option><option value="center">Middle</option><option value="top">Top</option></select></label>
+          <label class="field"><span>Align</span><select name="align"><option value="left">Left</option><option value="center">Centre</option></select></label>
+        </div>
+        <span class="fieldlabel">Style</span>
+        <div class="lab-styles" role="radiogroup" aria-label="Text style">
+          {% for st in lab.styles %}<label class="lab-style s-{{ st }}"><input type="radio" name="style" value="{{ st }}" {% if loop.first %}checked{% endif %}><span>{{ st | capitalize }}</span></label>{% endfor %}
+        </div>
+        <div class="beatform">
+          <label class="field"><span>Font</span><select name="font"><option value="sans">Figtree (bold sans)</option><option value="serif">Playfair (serif)</option></select></label>
+          <label class="field"><span>Corner badge <em>· optional</em></span><input name="badge" maxlength="16" placeholder="NEW"></label>
+        </div>
+        <div class="lab-sliders">
+          {% for name, label, lo, hi, step in [("size", "Text size", 0.6, 1.6, 0.05), ("zoom", "Zoom", 1, 2, 0.05), ("fx", "Focus left ↔ right", 0, 1, 0.05),
+                                               ("fy", "Focus up ↕ down", 0, 1, 0.05), ("darken", "Shade behind text", 0, 0.7, 0.05),
+                                               ("saturation", "Colour", 0.5, 1.8, 0.05), ("contrast", "Contrast", 0.7, 1.6, 0.05)] %}
+          <label class="slider"><span>{{ label }}</span><output>{{ lab.defaults[name] }}</output><input type="range" name="{{ name }}" min="{{ lo }}" max="{{ hi }}" step="{{ step }}" value="{{ lab.defaults[name] }}"></label>
+          {% endfor %}
+        </div>
+        <div class="flex" style="margin-top:16px;flex-wrap:wrap">
+          <button class="btn primary" type="submit">{{ icon("plus") }} <span id="labSubmit">Save as a new variant</span></button>
+          <button class="btn ghost" type="button" id="labNew" hidden>Start a new one</button>
+        </div>
+      </div>
+    </form>
+    {% if lab.video %}<form id="grabForm" method="post" action="/p/{{ slug }}/thumbs/grab"><input type="hidden" name="seconds" id="grabSeconds"></form>{% endif %}
+  </section>
+
+  <section class="card cardpad" id="variants">
+    <div class="cardhead"><div><h2>Variants</h2><p>{% if lab.variants %}Compare them as viewers will see them, then choose one for Publish.{% else %}Saved variants appear here.{% endif %}</p></div>
+      {% if lab.variants %}<div class="seg sm" role="tablist"><button type="button" class="on" data-view="grid">Side by side</button><button type="button" data-view="feed">Feed size</button></div>{% endif %}</div>
+    {% if lab.variants %}
+    <div class="variants {{ spec.name }}" id="variantList" data-view="grid">
+      {% for vr in lab.variants | reverse %}
+      <article class="variant {{ 'chosen' if lab.selected == vr.file }} {{ 'fresh' if lab_made == vr.id }}" data-settings="{{ tojson_safe(vr.settings) }}" data-id="{{ vr.id }}">
+        <div class="vthumb"><img src="/files/{{ slug }}/output/{{ lab.dir }}/{{ vr.file }}?v={{ vr.created | replace(' ', '') }}" alt="{{ vr.label }}" loading="lazy">
+          {% if lab.selected == vr.file %}<span class="pill green chosen-pill">✓ For Publish</span>{% endif %}</div>
+        <div class="feedmeta"><span class="avatar xs">HU</span><span><b>{{ project.title if project else slug }}</b><small>Human Unknowns</small></span></div>
+        <div class="vfoot">
+          <span class="meta">{{ vr.label }}</span>
+          <span class="flex" style="gap:6px">
+            <button type="button" class="btn ghost small" data-edit>Edit</button>
+            <form method="post" action="/p/{{ slug }}/thumbs/select"><input type="hidden" name="file" value="{{ '' if lab.selected == vr.file else vr.file }}">
+              <button class="btn small {{ '' if lab.selected == vr.file else 'primary' }}">{{ "Unselect" if lab.selected == vr.file else "Use for Publish" }}</button></form>
+            <form method="post" action="/p/{{ slug }}/thumbs/delete/{{ vr.id }}" onsubmit="return confirm('Delete this variant?')"><button class="icon-action del" aria-label="Delete variant" title="Delete">{{ icon("trash") }}</button></form>
+          </span>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-s"><div class="glowdot"></div><p>Design one above and press “Save as a new variant”. Make two or three to compare.</p></div>
+    {% endif %}
+  </section>
+</div>
+{% endif %}
+<script src="/static/studio.js?v=1" defer></script>

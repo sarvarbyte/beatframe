@@ -1,0 +1,39 @@
+{# Compare two renders side by side with one shared play/seek control. #}
+{% set vids = compare_ctx(slug, out.fmt) %}
+{% if vids | length < 2 %}
+<section class="card cardpad empty">
+  <div class="glowdot"></div>
+  <h2>Nothing to compare yet</h2>
+  <p>{% if vids %}There is one render ({{ vids[0].label | lower }}). Render a preview or the final again: the earlier one is kept here, so you can see what changed.{% else %}Render a preview first. Each new render keeps the one it replaces, so versions can be compared.{% endif %}</p>
+  {% if project and not imported %}<button class="btn primary" hx-post="/p/{{ slug }}/render" hx-vals='{"kind": "preview"}' hx-target="#job" hx-swap="outerHTML">{{ icon("refresh") }} Render preview</button>{% endif %}
+</section>
+{% else %}
+{% set ida = cmp_a if cmp_a in (vids | map(attribute="id") | list) else vids[0].id %}
+{% set idb = cmp_b if cmp_b in (vids | map(attribute="id") | list) and cmp_b != ida else (vids | rejectattr("id", "equalto", ida) | first).id %}
+<section class="card cardpad cmp" id="compare" data-slug="{{ slug }}">
+  <div class="cardhead"><div><h2>Compare renders</h2><p>Both play together. Seek, scrub or jump to a beat and both follow.</p></div>
+    <span class="pill purple">{{ vids | length }} versions kept</span></div>
+  <div class="cmp-grid {{ spec.name }}">
+    {% for side, cur in [("a", ida), ("b", idb)] %}
+    <div class="cmp-side" data-side="{{ side }}">
+      <select class="cmp-pick" aria-label="Video {{ side | upper }}">
+        {% for x in vids %}<option value="{{ x.id }}" {% if x.id == cur %}selected{% endif %}
+          data-src="/files/{{ slug }}/output/{{ x.id }}?v={{ x.mtime }}" data-meta="{{ tojson_safe(x) }}">{{ x.label }}{% if x.duration %} · {{ fmt_secs(x.duration) }}{% endif %}</option>{% endfor %}
+      </select>
+      <div class="video-frame {{ spec.name }}"><video playsinline preload="auto" muted></video></div>
+      <div class="cmp-info"></div>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="cmp-controls">
+    <button class="btn primary" type="button" id="cmpPlay">{{ icon("play") }} Play both</button>
+    <input type="range" id="cmpSeek" min="0" max="1000" value="0" aria-label="Position">
+    <span class="mono meta" id="cmpTime">0:00</span>
+    <select id="cmpRate" aria-label="Speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="1.5">1.5×</option></select>
+    <select id="cmpAudio" aria-label="Sound"><option value="a">Sound: left</option><option value="b">Sound: right</option><option value="none">Muted</option></select>
+    <button class="btn ghost small" type="button" id="cmpSwap">{{ icon("swap") }} Swap</button>
+  </div>
+  <div class="cmp-beats" id="cmpBeats" aria-label="Jump to beat"></div>
+</section>
+{% endif %}
+<script src="/static/studio.js?v=1" defer></script>

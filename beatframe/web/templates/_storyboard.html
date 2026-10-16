@@ -1,0 +1,49 @@
+{# Storyboard: every beat as a card in story order. Drag a card (or use its arrows / Alt+←→) to reorder,
+   then save. Stills come from the newest render; a beat that was never rendered shows its scene name. #}
+{% set v = out.final or out.preview %}
+{% set stills = v and frames_ok(slug, out.fmt) %}
+{% set words_total = beats | map(attribute="beat.text") | join(" ") | wordcount %}
+<div class="sb-head">
+  <div>
+    <h2>Storyboard</h2>
+    <p class="subtitle">Drag beats into a new order, then save. A moved beat keeps its rendered clip, so the next preview only re-assembles.</p>
+  </div>
+  <div class="sb-meta">
+    <span class="pill purple">{{ beats | length }} beats</span>
+    <span class="pill gray">≈ {{ (words_total / 2.4) | round | int }} s of narration</span>
+    {% if not v %}<span class="pill yellow">No render yet: stills appear after a preview</span>{% elif not stills %}<span class="pill yellow">Render a new preview to see each beat's still</span>{% endif %}
+  </div>
+</div>
+
+<div class="sb-bar" id="sbBar" hidden>
+  <span><b>Order changed.</b> <span id="sbDiff"></span></span>
+  <span class="flex">
+    <button class="btn ghost small" type="button" id="sbReset">Undo changes</button>
+    <button class="btn primary small" type="button" id="sbSave">{{ icon("check") }} Save order</button>
+  </span>
+</div>
+
+<ol class="storyboard {{ spec.name }}" id="storyboard" data-slug="{{ slug }}" data-busy="{{ 1 if busy else 0 }}" aria-label="Beats in story order">
+  {% for b in beats %}{% set beat = b.beat %}
+  <li class="sb-card" id="sb-{{ b.i }}" data-i="{{ b.i }}" tabindex="0" aria-label="Beat {{ b.i }}: {{ beat.text }}">
+    {% if beat.chapter %}<span class="sb-chapter">{{ beat.chapter }}</span>{% endif %}
+    <div class="sb-still">
+      {% if stills %}<img src="/p/{{ slug }}/beats/{{ b.i }}/frame.jpg?v={{ v.mtime }}" alt="" loading="lazy" draggable="false" onerror="this.remove()">{% endif %}
+      <span class="sb-scene">{{ beat.scene }}</span>
+      <span class="sb-num">{{ b.i }}</span>
+      <button class="sb-grip" type="button" aria-label="Drag to move beat {{ b.i }}" title="Drag to move">{{ icon("drag") }}</button>
+    </div>
+    <p class="sb-text">{{ beat.text }}</p>
+    <div class="sb-foot">
+      <span class="meta">≈ {{ ((beat.text | wordcount) / 2.4) | round(1) }} s</span>
+      <span class="sb-ops">
+        <button type="button" class="icon-action" data-move="-1" aria-label="Move earlier" title="Move earlier">←</button>
+        <button type="button" class="icon-action" data-move="1" aria-label="Move later" title="Move later">→</button>
+        <a class="icon-action" href="/p/{{ slug }}?tab=edit#beat-{{ b.i }}" aria-label="Edit beat" title="Edit this beat">✎</a>
+        <form method="post" action="/p/{{ slug }}/storyboard/duplicate/{{ b.i }}"><button class="icon-action" aria-label="Duplicate beat" title="Duplicate">⧉</button></form>
+      </span>
+    </div>
+  </li>
+  {% endfor %}
+</ol>
+<script src="/static/studio.js?v=1" defer></script>

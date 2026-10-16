@@ -1,0 +1,57 @@
+{% from "_ui.html" import icon %}
+{% set p = it.payload %}
+<article class="card idea {{ 'starred' if it.starred }} {{ 'fresh' if fresh }}" id="idea-{{ it.id }}">
+  <header class="idea-head">
+    <span class="pill {{ {'ideas': 'purple', 'hooks': 'blue', 'plan': 'green', 'script': 'yellow'}[it.kind] }}">{{ {'ideas': 'Ideas', 'hooks': 'Hooks', 'plan': 'Plan', 'script': 'Script draft'}[it.kind] }}</span>
+    <span class="meta">{{ it.created }}{% if it.model %} · {{ it.model }}{% endif %}</span>
+    <span class="flex" style="gap:4px;margin-left:auto">
+      <button class="icon-action {{ 'on' if it.starred }}" hx-post="/ideas/{{ it.id }}/star" hx-target="#idea-{{ it.id }}" hx-swap="outerHTML" aria-label="Keep at the top" title="Star">{{ icon("star") }}</button>
+      <button class="icon-action del" hx-post="/ideas/{{ it.id }}/delete" hx-target="#idea-{{ it.id }}" hx-swap="outerHTML" hx-confirm="Delete this?" aria-label="Delete" title="Delete">{{ icon("trash") }}</button>
+    </span>
+  </header>
+  {% if it.brief %}<p class="idea-brief">“{{ it.brief }}”</p>{% endif %}
+
+  {% if it.kind == "ideas" %}
+  <ol class="idea-items">
+    {% for i in p.ideas %}
+    <li>
+      <div class="row"><b>{{ i.title }}</b><span class="pill gray">{{ "Short" if i.format == "short" else "Long" }}</span></div>
+      <p class="idea-hook">“{{ i.hook }}”</p>
+      <p class="meta">{{ i.angle }}</p>
+      <p class="idea-why">{{ i.why }}</p>
+      <div class="flex" style="gap:6px;flex-wrap:wrap">
+        <button type="button" class="btn ghost small" data-fill="hooks" data-brief="{{ i.title }}">More hooks</button>
+        <button type="button" class="btn small" data-fill="script" data-fmt="{{ i.format }}" data-brief="{{ i.title }} — {{ i.hook }}">Draft script</button>
+        <button type="button" class="btn ghost small" data-copy="#ic-{{ it.id }}-{{ loop.index }}">{{ icon("copy") }} Copy</button>
+        <textarea hidden id="ic-{{ it.id }}-{{ loop.index }}">{{ i.title }}&#10;Hook: {{ i.hook }}&#10;{{ i.angle }}</textarea>
+      </div>
+    </li>
+    {% endfor %}
+  </ol>
+  {% elif it.kind == "hooks" %}
+  <ol class="idea-items">
+    {% for h in p.hooks %}
+    <li><div class="row"><b>“{{ h.hook }}”</b><span class="pill gray">{{ h.kind }}</span></div><p class="idea-why">{{ h.why }}</p></li>
+    {% endfor %}
+  </ol>
+  {% elif it.kind == "plan" %}
+  <p class="idea-why">{{ p.summary }}</p>
+  <div class="plan">
+    {% for x in p["items"] %}
+    <div class="plan-row"><span class="plan-day">{{ x.day }}</span><span class="pill gray">{{ "Short" if x.format == "short" else "Long" }}</span><span><b>{{ x.title }}</b><small>{{ x.note }}</small></span></div>
+    {% endfor %}
+  </div>
+  {% elif it.kind == "script" %}
+  <div class="flex" style="gap:8px;margin:4px 0 10px;flex-wrap:wrap">
+    {% if p.valid %}<span class="pill green">✓ Passes Beatframe's check · {{ p.beats }} beats</span>{% else %}<span class="pill red">Needs fixes before it can render</span>{% endif %}
+  </div>
+  {% if p.problems %}<ul class="tips">{% for x in p.problems[:6] %}<li>{{ x }}</li>{% endfor %}</ul>{% endif %}
+  {% if p.notes %}<p class="idea-why">{{ p.notes }}</p>{% endif %}
+  <details class="adv"><summary>{{ icon("code") }} Show the YAML {{ icon("chev") }}</summary>
+    <textarea class="code" id="yaml-{{ it.id }}" rows="14" readonly>{{ p.yaml }}</textarea></details>
+  <div class="flex" style="gap:8px;margin-top:10px;flex-wrap:wrap">
+    <a class="btn primary small" href="/ideas/{{ it.id }}/use">{{ icon("arrow") }} Open in Studio</a>
+    <button type="button" class="btn ghost small" data-copy="#yaml-{{ it.id }}">{{ icon("copy") }} Copy YAML</button>
+  </div>
+  {% endif %}
+</article>

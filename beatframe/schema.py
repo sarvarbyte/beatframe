@@ -145,4 +145,17 @@ def dump_project(project: Project) -> str:
     if project.beats or not project.imported:
         data["beats"] = [b.model_dump(mode="json", exclude_defaults=True) | {"text": b.text, "scene": b.scene}
                          for b in project.beats]
-    return yaml.safe_dump(data, sort_keys=False, allow_unicode=True, width=100)
+    return yaml.dump(data, Dumper=_BlockDumper, sort_keys=False, allow_unicode=True, width=100)
+
+
+class _BlockDumper(yaml.SafeDumper):
+    """Safe YAML, but multi-line strings (a custom scene's code) stay readable `|` blocks."""
+
+
+def _str(dumper, value: str):
+    if "\n" in value:
+        return dumper.represent_scalar("tag:yaml.org,2002:str", value, style="|")
+    return dumper.represent_scalar("tag:yaml.org,2002:str", value)
+
+
+_BlockDumper.add_representer(str, _str)

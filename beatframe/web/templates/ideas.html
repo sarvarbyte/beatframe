@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% from "_ui.html" import icon, head %}
+{% block title %}Ideas · Beatframe{% endblock %}
+{% block body %}
+{% call head("", "Ideas", "Plan the next videos with Gemini, using your channel's own Stats report and the topics you have already made. Everything is saved on this computer.") %}{% endcall %}
+
+{% if not has_key %}
+<div class="alert warn" style="margin:0 0 20px">Ideas use the same Gemini key as the AI review. <a class="linkbtn" href="/settings">Add the key in Settings</a>, then come back. Nothing is generated without it.</div>
+{% endif %}
+
+<div class="grid2 cols-ideas">
+  <section class="card cardpad idea-form">
+    <form hx-post="/ideas/run" hx-target="#ideaList" hx-swap="afterbegin" hx-indicator="#ideaSpin" hx-disabled-elt="find button[type=submit]" id="ideaForm">
+      <span class="fieldlabel">What do you need?</span>
+      <div class="idea-kinds" role="radiogroup">
+        {% for k, label, hint in [("ideas", "Video ideas", "new topics in your winners' pattern"), ("hooks", "Hooks", "opening lines for one topic"),
+                                  ("plan", "Publishing plan", "the next days, day by day"), ("script", "Script draft", "Beatframe YAML for one idea")] %}
+        <label class="choice"><input type="radio" name="kind" value="{{ k }}" {% if kind == k %}checked{% endif %}><b>{{ label }}</b><small>{{ hint }}</small></label>
+        {% endfor %}
+      </div>
+      <label class="field"><span id="briefLabel">Note for the AI <em>· optional</em></span>
+        <textarea name="brief" rows="3" id="ideaBrief" placeholder="e.g. more ideas like the nose video; nothing about sleep"></textarea></label>
+      <div class="beatform">
+        <label class="field"><span>Format</span><select name="fmt"><option value="short">Shorts</option><option value="long">Long videos</option><option value="any">Both</option></select></label>
+        <label class="field"><span>How many ideas</span><input type="number" name="count" value="6" min="1" max="12"></label>
+      </div>
+      <p class="hint">{% if has_stats %}Uses the last Stats report and the made-topics list.{% else %}No Stats report yet: ideas are based on your made topics only. Get a report on the Stats page for better ideas.{% endif %}</p>
+      <button class="btn primary wide" type="submit" {% if not has_key %}disabled{% endif %}>{{ icon("spark") }} Generate</button>
+      <div class="idea-spin htmx-indicator" id="ideaSpin"><span class="spin"></span> Gemini is thinking… this takes 5–30 seconds</div>
+    </form>
+  </section>
+
+  <section>
+    <div class="row" style="margin-bottom:12px"><h2>Saved</h2><span class="pill gray">{{ items | length }} saved</span></div>
+    <div id="ideaList" class="idea-list">
+      {% for it in items %}{% include "_idea.html" %}{% endfor %}
+      {% if not items %}<div class="empty-s" id="ideaEmpty"><div class="glowdot"></div><p>Generated ideas, hooks, plans and drafts are kept here.</p></div>{% endif %}
+    </div>
+  </section>
+</div>
+<script>
+  (() => {
+    const f = document.getElementById("ideaForm"), lab = document.getElementById("briefLabel"), brief = document.getElementById("ideaBrief");
+    const text = { ideas: ["Note for the AI <em>· optional</em>", "e.g. more ideas like the nose video; nothing about sleep"],
+                   hooks: ["Topic", "e.g. why your own voice sounds strange on recordings"],
+                   plan: ["Note for the AI <em>· optional</em>", "e.g. 2 Shorts a day, one long video this week"],
+                   script: ["Idea (title and hook)", "e.g. Your Nose Is Always in View — Your brain deletes it"] };
+    const upd = () => { const k = f.querySelector("[name=kind]:checked").value; lab.innerHTML = text[k][0]; brief.placeholder = text[k][1]; brief.required = k === "hooks" || k === "script"; };
+    f.addEventListener("change", upd); upd();
+    document.body.addEventListener("htmx:afterSwap", e => { if (e.target.id === "ideaList") document.getElementById("ideaEmpty")?.remove(); });
+    // "Hooks for this" / "Draft script" buttons on saved ideas fill the form
+    document.addEventListener("click", e => {
+      const b = e.target.closest("[data-fill]"); if (!b) return;
+      f.querySelector(`[name=kind][value=${b.dataset.fill}]`).checked = true; upd();
+      brief.value = b.dataset.brief; if (b.dataset.fmt) f.querySelector("[name=fmt]").value = b.dataset.fmt;
+      f.scrollIntoView({ behavior: "smooth", block: "start" }); brief.focus();
+    });
+  })();
+</script>
+{% endblock %}

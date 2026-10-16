@@ -1,0 +1,46 @@
+{
+  "items": [
+    {
+      "id": "55f25c1f",
+      "kind": "hooks",
+      "brief": "why",
+      "model": "gemini-3.8-flash",
+      "created": "2026-10-16 10:24",
+      "starred": false,
+      "payload": {
+        "hooks": [
+          {
+            "hook": "Your brain twitches your muscles because it thinks you are dying.",
+            "kind": "claim",
+            "why": "To'g'ridan-to'g'ri You/Your da'vosi tomoshabinda darhol kuchli qiziqish uyg'otadi."
+          },
+          {
+            "hook": "Watch your body jerk awake next time you drift into sleep.",
+            "kind": "test-it-now",
+            "why": "Tomoshabinni o'z tanasidagi universal refleksni darhol kuzatishga undaydi."
+          },
+          {
+            "hook": "Seventy percent of people violently jerk awake from a fake fall.",
+            "kind": "number",
+            "why": "Aniq raqam orqali bu sirli holat tomoshabinning o'ziga ham tegishli ekanini ko'rsatadi."
+          },
+          {
+            "hook": "You feel like you're falling, but your muscles are only relaxing.",
+            "kind": "contrast",
+            "why": "Miya hissi va haqiqiy tana holati o'rtasidagi ziddiyat e'tiborni tortadi."
+          },
+          {
+            "hook": "Why does your body violently twitch right before you fall asleep?",
+            "kind": "question",
+            "why": "Klassik savol shakli orqali keng tarqalgan tana siriga qiziqish uyg'otadi."
+          },
+          {
+            "hook": "Your brain secretly shocks your body every time you fall asleep.",
+            "kind": "claim",
+            "why": "Kutilmagan kuchli fakt kanalning g'olib da'vo formulasiga to'liq mos keladi."
+          }
+        ]
+      }
+    }
+  ]
+}

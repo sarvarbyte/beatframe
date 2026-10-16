@@ -215,7 +215,9 @@ class Store:
             files[name] = {"name": name, "mtime": int(f.stat().st_mtime), "size": f.stat().st_size} if f.exists() else None
         tdir = out / ("thumbs" + spec.suffix)
         files["thumb_dir"] = tdir.name
-        files["thumbs"] = sorted(p.name for p in tdir.glob("*.png")) if tdir.exists() else []
+        # render candidates (thumb_*.png), grabbed frames and Thumbnail Lab designs (lab_*.jpg, listed first)
+        found = [p.name for p in tdir.iterdir() if p.suffix.lower() in (".png", ".jpg", ".jpeg")] if tdir.exists() else []
+        files["thumbs"] = sorted(found, key=lambda n: (not n.startswith("lab_"), n))
         files["other"] = [
             {"fmt": other.name, "label": other.label, "aspect": other.aspect, "kind": kind}
             for other in FORMATS.values() if other.name != spec.name

@@ -8,7 +8,7 @@
 
 <a class="back" href="/projects">{{ icon("back") }} All projects</a>
 {% set sub %}{% if imported %}<span class="pill purple">Imported</span><span class="sep"></span>{{ spec.label }} {{ spec.aspect }}{% if project.made_with %}<span class="sep">·</span>made with {{ project.made_with }}{% endif %}{% elif project %}{{ project.beats | length }} beats<span class="sep">·</span>{% set v = out.final or out.preview %}{% if v and v.duration %}{{ fmt_secs(v.duration) }} duration<span class="sep">·</span>{% endif %}voice {{ project.voice.name if project.voice.provider == "edge" else project.voice.provider }}{% endif %}{% endset %}
-{% call head(("IMPORTED" if imported else "YOUR WORKSPACE") ~ " / " ~ ("SHORT" if spec.name == "short" else "LONG") ~ " VIDEO", project.title if project else slug, sub) %}
+{% call head((("Imported " ~ ("short" if spec.name == "short" else "long")) if imported else ("Short" if spec.name == "short" else "Long")) ~ " video",  project.title if project else slug, sub) %}
   {% if project and not imported %}
   <form method="post" action="/p/{{ slug }}/format" class="seg" role="radiogroup" aria-label="Video format">
     <input type="hidden" name="tab" value="{{ tab }}">
@@ -27,8 +27,8 @@
 {% if flow %}{{ steps(flow) }}{% endif %}
 
 <nav class="screen-tabs">
-  {% for t, label, ic in ([("video", "Video", "video"), ("script", "Import card", "code"), ("publish", "Publish", "send")] if imported else [("video", "Video", "video"), ("edit", "Edit beats", "beats"), ("script", "Script", "code"), ("publish", "Publish", "send")]) %}
-  <a href="/p/{{ slug }}?tab={{ t }}" class="{{ 'active' if tab == t }}">{{ icon(ic) }} {{ label }}</a>
+  {% for t, label, ic in ([("video", "Video", "video"), ("script", "Import card", "code"), ("thumbs", "Thumbnails", "image"), ("publish", "Publish", "send")] if imported else [("video", "Video", "video"), ("storyboard", "Storyboard", "storyboard"), ("edit", "Edit beats", "beats"), ("script", "Script", "code"), ("compare", "Compare", "compare"), ("thumbs", "Thumbnails", "image"), ("publish", "Publish", "send")]) %}
+  <a href="/p/{{ slug }}?tab={{ t }}" class="{{ 'active' if tab == t }}" title="{{ label }}" aria-label="{{ label }}">{{ icon(ic) }} <span class="tl">{{ label }}</span></a>
   {% endfor %}
 </nav>
 
@@ -102,7 +102,7 @@
 {% set r = rv.data.review if rv.data else none %}
 <section class="card cardpad" style="margin-top:20px" id="review">
   <div class="cardhead">
-    <div><div class="eyebrow" style="margin-bottom:9px">INSIGHT ENGINE</div><h2>AI video review</h2><p>Feedback tied to exact beats and timestamps, judged against the channel's rules.</p></div>
+    <div><h2>AI video review</h2><p>Feedback tied to exact beats and timestamps, judged against the channel's rules.</p></div>
     {% if rv.has_key %}<button class="btn {{ 'ghost small' if r and not rv.stale else 'primary' }}" hx-post="/p/{{ slug }}/review" hx-target="#job" hx-swap="outerHTML" {% if busy %}disabled{% endif %}>{{ icon("spark") }} {{ "Review again" if r else "Review with AI" }}</button>{% endif %}
   </div>
   {% if not rv.has_key and not r %}
@@ -116,18 +116,18 @@
       <div class="ai-score">
         <div class="score-ring" style="--score: {{ r.score }}"><div><strong>{{ r.score }}<span>/10</span></strong><small>AI score</small></div></div>
         <div><span class="pill {{ 'green' if r.verdict == 'ready' else 'yellow' }}">{{ "Ready" if r.verdict == "ready" else "Fix first" }}</span>
-          <div style="margin-top:12px;color:#b8c5df;font-size:12px;line-height:1.65">{{ "Good to publish." if r.verdict == "ready" else "Good foundation." }}<br>
-            <b style="color:#fff">{{ r.issues | length }} improvement{{ "s" if r.issues | length != 1 }}</b></div></div>
+          <div style="margin-top:12px;color:var(--text-2);font-size:12px;line-height:1.65">{{ "Good to publish." if r.verdict == "ready" else "Good foundation." }}<br>
+            <b style="color:var(--text)">{{ r.issues | length }} improvement{{ "s" if r.issues | length != 1 }}</b></div></div>
       </div>
       <div class="divider"></div>
       <div class="sectionlabel">Review summary</div>
-      <p style="color:#aab7d2;line-height:1.7;font-size:12.5px">{{ r.summary }}</p>
-      <p class="hint" style="margin-top:12px"><b style="color:#c6d1e8">First 2 seconds:</b> {{ r.first_seconds }}</p>
-      {% if r.strengths %}<p class="hint"><b style="color:#c6d1e8">Works:</b> {{ r.strengths | join(" · ") }}</p>{% endif %}
+      <p style="color:var(--text-2);line-height:1.7;font-size:12.5px">{{ r.summary }}</p>
+      <p class="hint" style="margin-top:12px"><b style="color:var(--text-2)">First 2 seconds:</b> {{ r.first_seconds }}</p>
+      {% if r.strengths %}<p class="hint"><b style="color:var(--text-2)">Works:</b> {{ r.strengths | join(" · ") }}</p>{% endif %}
       <p class="meta mono" style="margin-top:18px">{{ rv.data.model }} · {{ rv.data.created[11:16] }}{% if rv.data.model.startswith("openrouter:") %} · backup model{% endif %}</p>
     </div>
     <div>
-      <div class="sectionlabel">PRIORITIZED ISSUES <span class="pill {{ 'red' if r.issues else 'green' }}" style="margin-left:6px">{{ r.issues | length }} found</span></div>
+      <div class="sectionlabel">Issues, most important first <span class="pill {{ 'red' if r.issues else 'green' }}" style="margin-left:6px">{{ r.issues | length }} found</span></div>
       {% for it in r.issues %}
       <div class="ai-issue">
         <div class="severitybar {{ it.severity }}"></div>
@@ -157,6 +157,18 @@
   <span class="pill purple">{{ beats | length }} beats in this story</span>
 </div>
 {% for b in beats %}{% include "_beat.html" %}{% endfor %}
+
+{# ------------------------------------------------------------------ STORYBOARD #}
+{% elif tab == "storyboard" %}
+{% include "_storyboard.html" %}
+
+{# ------------------------------------------------------------------ COMPARE #}
+{% elif tab == "compare" %}
+{% include "_compare.html" %}
+
+{# ------------------------------------------------------------------ THUMBNAILS #}
+{% elif tab == "thumbs" %}
+{% include "_thumblab.html" %}
 
 {# ------------------------------------------------------------------ SCRIPT #}
 {% elif tab == "script" %}
@@ -248,14 +260,16 @@
 
   <aside class="stack">
     <section class="card cardpad">
-      <div class="cardhead"><h3>Video thumbnail</h3><span class="pill purple">Pick a frame</span></div>
+      {% set lab = lab_ctx(slug, out.fmt) %}
+      <div class="cardhead"><h3>Video thumbnail</h3><a class="pill purple" href="/p/{{ slug }}?tab=thumbs">{{ icon("image") }} Thumbnail Lab</a></div>
       {% if out.thumbs %}
-      <img class="bigthumb {{ spec.name }}" id="thumb-big" src="/files/{{ slug }}/output/{{ out.thumb_dir }}/{{ out.thumbs[0] }}" alt="">
+      {% set chosen = lab.selected if lab.selected in out.thumbs else "" %}
+      <img class="bigthumb {{ spec.name }}" id="thumb-big" src="/files/{{ slug }}/output/{{ out.thumb_dir }}/{{ chosen or out.thumbs[0] }}" alt="">
       <div class="thumbstrip {{ spec.name }}">
-        <label><input type="radio" name="thumb" value="" form="pubform" checked><span class="none">YouTube picks</span></label>
-        {% for t in out.thumbs %}<label><input type="radio" name="thumb" value="{{ t }}" form="pubform" onchange="document.getElementById('thumb-big').src=this.nextElementSibling.src"><img src="/files/{{ slug }}/output/{{ out.thumb_dir }}/{{ t }}" alt=""></label>{% endfor %}
+        <label><input type="radio" name="thumb" value="" form="pubform" {% if not chosen %}checked{% endif %}><span class="none">YouTube picks</span></label>
+        {% for t in out.thumbs %}<label class="{{ 'lab' if t.startswith('lab_') }}"><input type="radio" name="thumb" value="{{ t }}" form="pubform" {% if t == chosen %}checked{% endif %} onchange="document.getElementById('thumb-big').src=this.nextElementSibling.src"><img src="/files/{{ slug }}/output/{{ out.thumb_dir }}/{{ t }}" alt=""></label>{% endfor %}
       </div>
-      <p class="hint">Frames from the final video. A custom thumbnail needs a verified channel.</p>
+      <p class="hint">{% if chosen %}The variant chosen in Thumbnail Lab is selected. {% endif %}Frames from the video and your Lab designs. A custom thumbnail needs a verified channel.</p>
       {% else %}<div class="empty-s"><div class="glowdot"></div><p>Thumbnail candidates appear after the final render.</p></div>{% endif %}
     </section>
     <section class="card cardpad">

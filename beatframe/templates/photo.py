@@ -41,8 +41,14 @@ class Photo(Template):
         w, h = frame_w(), frame_h()
         path = Path(p.image)
         if not p.image or not path.exists():
-            msg = Text("image missing: " + (p.image or "(no image set)"), font=brand.SANS, color=brand.DIM)
-            scene.add(fit(msg, w * 0.85))
+            # a clear placeholder, so a missing picture is obvious in the preview
+            frame = Rectangle(width=w * 0.8, height=h * 0.62).set_stroke(brand.DIM, 3)
+            title = Text("Picture missing", font=brand.SANS, color=brand.GLOW).scale(0.9)
+            name = Text(Path(p.image).name if p.image else "(no image set)", font=brand.SANS, color=brand.PAPER).scale(0.6)
+            hint = Text("Script tab → Pictures to make", font=brand.SANS, color=brand.DIM).scale(0.45)
+            body = VGroup(title, name, hint).arrange(DOWN, buff=0.35)
+            fit(body, w * 0.72, h * 0.55)
+            scene.add(frame, body.move_to(frame))
             scene.wait(max(0.1, duration - 0.05))
             return
 

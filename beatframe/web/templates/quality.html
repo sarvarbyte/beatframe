@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% from "_ui.html" import icon, head %}
+{% block title %}AI quality · Beatframe{% endblock %}
+{% block body %}
+{% call head("", "AI quality", "Every AI review your videos got, over time. Scores and issues come straight from the saved reviews.") %}
+  <a class="btn ghost" href="/projects">{{ icon("projects") }} Projects</a>
+{% endcall %}
+
+{% if not summary.count %}
+<section class="card cardpad empty">
+  <div class="glowdot"></div>
+  <h2>No AI reviews yet</h2>
+  <p>Open a project, render a preview, then press “Run AI review” on its Video tab. Each review is kept here, so you can see whether videos get better.</p>
+  <a class="btn primary" href="/projects">Open a project</a>
+</section>
+{% else %}
+<div class="kpi-band">
+  <div class="chic-stat"><span>Reviews</span><b>{{ summary.count }}</b><small>{{ summary.projects }} video{{ "s" if summary.projects != 1 }} · {{ summary.first }} to {{ summary.last }}</small></div>
+  <div class="chic-stat"><span>Average score</span><b>{{ summary.avg }}</b><small>best {{ summary.best }} · lowest {{ summary.worst }} (out of 10)</small></div>
+  <div class="chic-stat"><span>Ready to publish</span><b>{{ summary.ready }}</b><small>of {{ summary.projects }} by their latest review</small></div>
+  <div class="chic-stat"><span>Most common issue</span><b class="txt">{{ summary.top_category[0] if summary.top_category else "—" }}</b><small>{% if summary.top_category %}{{ summary.top_category[1] }} times · {{ summary.severity.high }} high severity in all{% endif %}</small></div>
+</div>
+
+<div class="grid2 cols-quality">
+  <section class="card cardpad">
+    <div class="cardhead"><div><h2>Score over time</h2><p>One dot per review. Hover for the video; click to open it.</p></div>
+      <div class="seg sm" id="qFilter" role="tablist" aria-label="Format">
+        <button type="button" class="on" data-f="all">All</button><button type="button" data-f="short">Shorts</button><button type="button" data-f="long">Long</button></div></div>
+    <div class="chart" id="qScore" role="img" aria-label="AI review scores over time"></div>
+    {% if summary.improved %}<p class="hint">Videos reviewed more than once changed by {{ summary.improved | join(", ") }} points from their first to their latest review.</p>
+    {% else %}<p class="hint">Re-run the review after fixing a video to see its score move here.</p>{% endif %}
+  </section>
+  <section class="card cardpad">
+    <div class="cardhead"><div><h2>Issues by category</h2><p>All reviews, split by severity.</p></div></div>
+    <div class="chart" id="qIssues" role="img" aria-label="Issues per category by severity"></div>
+    <div class="legend"><span><i class="sw sev-high"></i>High</span><span><i class="sw sev-medium"></i>Medium</span><span><i class="sw sev-low"></i>Low</span></div>
+  </section>
+</div>
+
+<section class="card" style="margin-top:20px">
+  <div class="cardhead cardpad" style="padding-bottom:0"><div><h2>Latest review of each video</h2><p>Newest first.</p></div></div>
+  <div class="qtable" role="table">
+    <div class="qrow qhead" role="row"><span>Video</span><span>Score</span><span>Verdict</span><span>Issues</span><span>Reviewed</span></div>
+    {% for r in summary.latest %}
+    <a class="qrow" role="row" href="/p/{{ r.slug }}">
+      <span class="qtitle"><b>{{ r.title }}</b><small>{{ "Short" if r.fmt == "short" else "Long" }} · {{ r.model }}</small></span>
+      <span class="qscore"><i style="--w:{{ r.score * 10 }}%"></i><b>{{ r.score }}</b><small>/10</small></span>
+      <span>{% if r.verdict == "ready" %}<span class="pill green">Ready</span>{% else %}<span class="pill yellow">Fix first</span>{% endif %}</span>
+      <span class="qissues">{% for sev in ["high", "medium", "low"] %}{% set n = r.issues | selectattr("severity", "equalto", sev) | list | length %}{% if n %}<span class="sevchip sev-{{ sev }}">{{ n }} {{ sev }}</span>{% endif %}{% endfor %}{% if not r.issues %}<span class="meta">none</span>{% endif %}</span>
+      <span class="meta">{{ r.created[:16] | replace("T", " ") }}</span>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+<script type="application/json" id="qdata">{{ tojson_safe({"points": points, "by_category": summary.by_category, "avg": summary.avg}) | safe }}</script>
+<script src="/static/studio.js?v=1" defer></script>
+{% endif %}
+{% endblock %}

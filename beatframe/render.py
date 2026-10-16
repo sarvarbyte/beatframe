@@ -133,6 +133,28 @@ def _render(job: ClipJob, clips_dir: Path) -> Path:
     return out
 
 
+def reuse_moved_clips(jobs: list[ClipJob], clips_dir: Path) -> int:
+    """A beat that only moved (storyboard reorder) keeps its clip: the cache key does not depend on
+    the beat's position, so a clip rendered under another number is copied instead of re-rendered.
+    Done for all jobs before any rendering starts, so no worker deletes a clip another one needs."""
+    if not clips_dir.exists():
+        return 0
+    by_key: dict[str, Path] = {}
+    for f in clips_dir.glob("*.mp4"):
+        by_key.setdefault(f.stem.split("_", 1)[-1], f)
+    copied = 0
+    for job in jobs:
+        key = clip_key(job)
+        out = clips_dir / f"{job.index:03d}_{key}.mp4"
+        src = by_key.get(key)
+        if not out.exists() and src is not None and src != out:
+            tmp = out.with_suffix(".tmp")
+            shutil.copyfile(src, tmp)
+            tmp.replace(out)
+            copied += 1
+    return copied
+
+
 def _short_error(stderr: str) -> str:
     """The useful end of a Manim traceback; for custom code, from its own line onwards."""
     i = stderr.find('File "<custom beat>"')
@@ -153,6 +175,7 @@ def render_all(
     on_start: Callable[[ClipJob], None] | None = None,
 ) -> dict[int, Path]:
     workers = workers or max(1, (os.cpu_count() or 2) // 2)
+    reuse_moved_clips(jobs, clips_dir)
     results: dict[int, Path] = {}
     with ThreadPoolExecutor(max_workers=workers) as pool:
         futs = {}

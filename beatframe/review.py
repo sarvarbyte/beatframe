@@ -530,5 +530,7 @@ def run_review(project: Project, project_file: Path, video_format: str | None = 
         "fallbacks": failures,
     }
     review_file(out_dir, fmt.name).write_text(json.dumps(result, indent=2, ensure_ascii=False), encoding="utf-8")
+    from beatframe import quality
+    quality.append(out_dir, fmt.suffix, result)      # keep every review for the Quality history
     log(f"{model}: score {review.score}/10 · {len(review.issues)} issues · {review.verdict}")
     return result
