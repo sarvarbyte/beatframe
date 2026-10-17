@@ -1,0 +1,20 @@
+{# The template editor's preview pane: a finished render, a running/queued job, or an error. #}
+{% if error %}
+<div id="tplPreview" class="tpl-preview {{ fmt or 'long' }}"><div class="tpl-empty"><p class="alert err">{{ error }}</p></div></div>
+{% elif video or cached %}
+<div id="tplPreview" class="tpl-preview {{ fmt }}">
+  <video src="{{ video or ('/library-preview/' ~ cached.parent.parent.name ~ '/' ~ cached.parent.name ~ '/' ~ cached.name) }}" autoplay muted loop playsinline controls></video>
+  <span class="tpl-state ok">{{ "Cached render" if cached else "Rendered" }}{% if stats and stats.seconds %} · {{ stats.seconds }} s · {{ stats.peak_rss_mb }} MiB peak{% endif %}</span>
+</div>
+{% elif job %}
+<div id="tplPreview" class="tpl-preview {{ fmt }}" {% if job.status in ("queued", "running") %}hx-get="/templates/{{ tname }}/preview/{{ job.id }}" hx-trigger="every 1s" hx-swap="outerHTML"{% endif %}>
+  <div class="tpl-empty">
+    {% if job.status in ("queued", "running") %}<span class="spin"></span>
+      <p><b>{{ "Rendering with Manim…" if job.status == "running" else "Waiting for the current render to finish" }}</b><br>
+      <small>{{ job.label }}{% if job.elapsed %} · {{ job.elapsed }} s{% endif %}</small></p>
+      <button class="btn ghost small" hx-post="/templates/{{ tname }}/preview/{{ job.id }}/cancel" hx-target="#tplPreview" hx-swap="outerHTML">■ Stop</button>
+    {% elif job.status == "failed" %}<p class="alert err"><b>Render failed.</b><br><small>{{ job.error[-400:] }}</small></p>
+    {% else %}<p>Stopped.</p>{% endif %}
+  </div>
+</div>
+{% endif %}

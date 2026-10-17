@@ -31,7 +31,7 @@ class Job:
     label: str
     total: int = 1
     done: int = 0
-    status: str = "queued"        # queued | running | done | failed
+    status: str = "queued"        # queued | running | done | failed | cancelled
     fmt: str = "long"             # video format of a render job
     stage: str = "queued"
     beat: int | None = None       # beat being rendered right now
@@ -43,6 +43,7 @@ class Job:
     created: float = field(default_factory=time.time)
     started: float | None = None
     finished: float | None = None
+    cancel: threading.Event = field(default_factory=threading.Event)   # set by "Stop render"
 
     @property
     def is_render(self) -> bool:
@@ -123,9 +124,23 @@ class JobManager:
         j = self.latest(slug)
         return j if j and j.status in ("queued", "running") else None
 
+    def cancel(self, job_id: str) -> bool:
+        """Stop a queued job, or a running render after killing its current Manim process
+        (finished clips stay in the cache, so the next render resumes from there)."""
+        job = self.jobs.get(job_id)
+        if not job or job.status not in ("queued", "running"):
+            return False
+        job.cancel.set()
+        if job.status == "queued":
+            job.status, job.finished = "cancelled", time.time()
+        return True
+
     def _worker(self) -> None:
         while True:
             job, fn = self.q.get()
+            if job.cancel.is_set():
+                self.q.task_done()
+                continue
             job.status, job.started = "running", time.time()
             if job.is_render:
                 job.on_progress({"stage": "check"})
@@ -135,6 +150,9 @@ class JobManager:
                 if job.is_render:
                     job.on_progress({"stage": "done"})
             except Exception as e:  # noqa: BLE001
+                if job.cancel.is_set():
+                    job.status, job.error = "cancelled", "Stopped. Finished scenes stay cached."
+                    continue
                 job.status = "failed"
                 job.error = str(e) or e.__class__.__name__
                 job.lines.append(traceback.format_exc(limit=3))

@@ -114,7 +114,9 @@ def join_with_transitions(clips: list[Path], durations: list[float], kinds: list
         for j in range(1, len(idx)):
             t += durations[idx[j - 1]]
             tag = f"x{j}"
-            chains.append(f"[{prev}][v{j}]xfade=transition={kinds[idx[j]] or 'fade'}:duration={d:.3f}:offset={t:.3f}[{tag}]")
+            kind = kinds[idx[j]] or "fade"
+            dur = d if kind != "cut" else 1 / fps          # a hard cut: a one-frame fade
+            chains.append(f"[{prev}][v{j}]xfade=transition={'fade' if kind == 'cut' else kind}:duration={dur:.3f}:offset={t:.3f}[{tag}]")
             prev = tag
         subprocess.run(
             ["ffmpeg", "-v", "error", "-y", *inputs, "-filter_complex", ";".join(chains), "-map", f"[{prev}]",

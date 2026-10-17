@@ -35,7 +35,7 @@
     </div>
     <p class="sb-text">{{ beat.text }}</p>
     <div class="sb-foot">
-      <span class="meta">≈ {{ ((beat.text | wordcount) / 2.4) | round(1) }} s</span>
+      <span class="meta">≈ {{ ((beat.text | wordcount) / 2.4) | round(1) }} s{% if beat.min_duration != 2.0 %} · min {{ beat.min_duration }} s{% endif %}{% if beat.transition %} · <span title="Transition into this scene">⇢ {{ beat.transition }}</span>{% endif %}</span>
       <span class="sb-ops">
         <button type="button" class="icon-action" data-move="-1" aria-label="Move earlier" title="Move earlier">←</button>
         <button type="button" class="icon-action" data-move="1" aria-label="Move later" title="Move later">→</button>
@@ -43,7 +43,48 @@
         <form method="post" action="/p/{{ slug }}/storyboard/duplicate/{{ b.i }}"><button class="icon-action" aria-label="Duplicate beat" title="Duplicate">⧉</button></form>
       </span>
     </div>
+    <details class="sb-more">
+      <summary>Timing &amp; transition</summary>
+      <form method="post" action="/p/{{ slug }}/storyboard/beat/{{ b.i }}" class="sb-timing">
+        <label><span>Min length (s)</span><input type="number" name="min_duration" min="0.5" max="30" step="0.5" value="{{ beat.min_duration }}"></label>
+        <label><span>Transition in</span><select name="transition">{% for t in transitions %}<option value="{{ t or '' }}" {% if beat.transition == t %}selected{% endif %}>{{ t or "automatic" }}</option>{% endfor %}</select></label>
+        <button class="btn small">Save</button>
+      </form>
+      <form method="post" action="/p/{{ slug }}/storyboard/preview/{{ b.i }}"><button class="btn ghost small" {% if busy %}disabled{% endif %}>{{ icon("play") }} Preview this scene</button></form>
+    </details>
   </li>
   {% endfor %}
 </ol>
-<script src="/static/studio.js?v=1" defer></script>
+
+<section class="card cardpad composer" id="composer">
+  <div class="cardhead"><div><h2>Composer</h2><p>Build the video from library scenes, save a run of scenes for reuse, and preview the whole composition.</p></div>
+    {% if request.query_params.get("saved") == "composition" %}<span class="pill green">✓ Composition saved</span>{% endif %}</div>
+  <div class="composer-grid">
+    <div>
+      <span class="fieldlabel">Add a scene</span>
+      <p class="meta">Open the <a href="/templates">Template library</a>, set a scene up, then <b>Use template</b> to add it here.</p>
+      <form method="post" action="/p/{{ slug }}/storyboard/preview-all" style="margin-top:10px"><button class="btn primary small" {% if busy %}disabled{% endif %}>{{ icon("play") }} Preview the whole composition</button></form>
+    </div>
+    <form method="post" action="/p/{{ slug }}/compositions/save">
+      <span class="fieldlabel">Save scenes as a composition</span>
+      <div class="beatform">
+        <label class="field"><span>From</span><input type="number" name="first" min="1" max="{{ beats | length }}" value="1"></label>
+        <label class="field"><span>To</span><input type="number" name="last" min="1" max="{{ beats | length }}" value="{{ beats | length }}"></label>
+      </div>
+      <label class="field"><span>Name</span><input name="name" maxlength="60" placeholder="e.g. Hearing explainer"></label>
+      <button class="btn small">{{ icon("check") }} Save composition</button>
+    </form>
+    {% set comps = compositions() %}
+    <form method="post" {% if comps %}action="/p/{{ slug }}/compositions/{{ comps[-1].id }}/insert"{% endif %} id="insertComp">
+      <span class="fieldlabel">Insert a saved composition</span>
+      {% if comps %}
+      <label class="field"><span>Composition</span><select name="cid" onchange="this.form.action='/p/{{ slug }}/compositions/'+this.value+'/insert'">
+        {% for c in comps | reverse %}<option value="{{ c.id }}">{{ c.name }} · {{ c.beats | length }} scenes</option>{% endfor %}</select></label>
+      <label class="field"><span>Where</span><select name="position"><option value="end">At the end</option><option value="0">At the start</option>
+        {% for b in beats %}<option value="{{ b.i }}">After beat {{ b.i }}</option>{% endfor %}</select></label>
+      <button class="btn small" {% if busy %}disabled{% endif %}>{{ icon("plus") }} Insert</button>
+      {% else %}<p class="meta">No compositions yet. Save some scenes on the left to reuse them in other videos.</p>{% endif %}
+    </form>
+  </div>
+</section>
+<script src="/static/studio.js?v=2" defer></script>

@@ -277,15 +277,32 @@ def template_fields(scene: str, values: dict) -> list[dict]:
     """Describe a template's params so the page can draw a matching form."""
     cls = get_template(scene)
     fields = []
-    for name, info in cls.Params.model_fields.items():
+    items = list(cls.Params.model_fields.items())
+    try:                    # science-library scenes: their own settings first, the shared look settings last
+        from beatframe.templates.sci import SciParams
+        if issubclass(cls.Params, SciParams):
+            shared = set(SciParams.model_fields)
+            items = [i for i in items if i[0] not in shared] + [i for i in items if i[0] in shared]
+    except ImportError:  # pragma: no cover
+        pass
+    for name, info in items:
         ann = info.annotation
         current = values.get(name, info.default)
         f = {"name": name, "value": current, "default": info.default}
+        lo = next((m.ge for m in info.metadata if getattr(m, "ge", None) is not None), None)
+        hi = next((m.le for m in info.metadata if getattr(m, "le", None) is not None), None)
         if ann is bool:
             f["kind"] = "bool"
+        elif ann in (int, float) and lo is not None and hi is not None:
+            f["kind"] = "range"           # a slider: the template declared its sensible limits
+            span = hi - lo        # a step that lands exactly on the default and on round numbers
+            f.update(min=lo, max=hi, step=1 if ann is int else (0.01 if span <= 1.5 else 0.05 if span <= 5 else 0.1 if span <= 20 else 1))
         elif ann in (int, float):
             f["kind"] = "number"
             f["step"] = "1" if ann is int else "any"
+        elif get_origin(ann) is Literal and name in ("highlight", "palette") and _swatches(name, get_args(ann)):
+            f["kind"] = "swatch"
+            f["options"] = _swatches(name, get_args(ann))
         elif get_origin(ann) is Literal:
             f["kind"] = "select"
             f["options"] = list(get_args(ann))
@@ -296,6 +313,21 @@ def template_fields(scene: str, values: dict) -> list[dict]:
             f["kind"] = "textarea" if len(str(current or "")) > 60 else "text"
         fields.append(f)
     return fields
+
+
+def _swatches(name: str, options) -> list[dict]:
+    """Colour chips for the science-library colour settings (palette = background, highlight = accent)."""
+    from beatframe.templates import sci
+    out = []
+    for o in options:
+        if name == "palette" and o in sci.PALETTES:
+            pal = sci.PALETTES[o]
+            out.append({"value": o, "colors": [pal["top"], pal["lavender"], pal["mint"], pal["coral"]]})
+        elif name == "highlight" and o in sci.PALETTES["dusk"]:
+            out.append({"value": o, "colors": [sci.PALETTES["dusk"][o]]})
+        else:
+            return []
+    return out
 
 
 def params_from_form(scene: str, form: dict) -> dict:

@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% from "_ui.html" import icon %}
+{% block title %}{{ tname }} · Template library{% endblock %}
+{% block body %}
+<a class="back" href="/templates">{{ icon("back") }} Template library</a>
+<header class="pagehead" style="margin-top:6px">
+  <div><div class="eyebrow">{{ category }}</div><h1 class="mono">{{ tname }}</h1><p class="subtitle">{{ cls.description }}</p></div>
+  <div class="actions">
+    <button class="favbtn big{{ ' on' if favorite }}" hx-post="/templates/{{ tname }}/favorite" hx-swap="outerHTML" aria-pressed="{{ 'true' if favorite else 'false' }}" title="Favourite">{{ icon("star") }}</button>
+  </div>
+</header>
+{% if request.query_params.get("error") %}<div class="alert err" style="margin-bottom:16px">{{ request.query_params.get("error") }}</div>{% endif %}
+
+<form id="tplForm" class="tpl-editor" method="post" action="/templates/{{ tname }}/preset" data-name="{{ tname }}">
+  <section class="card cardpad tpl-left">
+    <div class="cardhead"><div><h2>Preview</h2><p>Real Manim renders at Eco quality (480p, 15 fps). Renders are cached by their settings.</p></div>
+      <div class="seg sm" role="radiogroup" aria-label="Format">
+        <label class="{{ 'on' if fmt == 'long' }}"><input type="radio" name="fmt" value="long" {% if fmt == 'long' %}checked{% endif %}>16:9 Long</label>
+        <label class="{{ 'on' if fmt == 'short' }}"><input type="radio" name="fmt" value="short" {% if fmt == 'short' %}checked{% endif %}>9:16 Short</label>
+      </div></div>
+    {% if cached %}
+      {% include "_tpl_preview.html" with context %}
+    {% else %}
+      <div id="tplPreview" class="tpl-preview {{ fmt }}">
+        {% if loop and fmt == "long" and not values %}<video src="{{ loop }}" autoplay muted loop playsinline></video>
+          <span class="tpl-state">Default settings · catalogue render</span>
+        {% else %}<div class="tpl-empty"><div class="glowdot"></div><p>Not rendered with these settings yet.<br>Press <b>Render preview</b>.</p></div>{% endif %}
+      </div>
+    {% endif %}
+    <p class="tpl-stale" id="tplStale" hidden>Settings changed. The preview shows the previous settings until you render again.</p>
+    <div class="sectionlabel" style="margin-top:16px">YAML for this beat</div>
+    <pre class="tpl-yaml" id="tplYaml"></pre>
+    <button type="button" class="btn ghost small" id="tplCopy">{{ icon("copy") }} Copy YAML</button>
+  </section>
+
+  <section class="card cardpad tpl-right">
+    <div class="cardhead"><div><h2>Settings</h2><p>{{ fields | length }} settings{% if preset %} · preset <b>{{ preset.name }}</b>{% endif %}</p></div></div>
+    {% if presets %}
+    <div class="tpl-presets">
+      <span class="fieldlabel">Presets</span>
+      <div class="flex" style="flex-wrap:wrap;gap:6px">
+        <a class="chip {{ '' if preset else 'on' }}" href="/templates/{{ tname }}?fmt={{ fmt }}">Defaults</a>
+        {% for pr in presets %}<a class="chip {{ 'on' if preset and preset.id == pr.id }}" href="/templates/{{ tname }}?preset={{ pr.id }}&fmt={{ fmt }}">{{ pr.name }}</a>{% endfor %}
+      </div>
+    </div>
+    {% endif %}
+    <div class="params tpl-fields">{% include "_fields.html" %}</div>
+    <label class="slider"><span>Preview length (seconds)</span><output>{{ seconds }}</output><input type="range" name="seconds" min="3" max="14" step="0.5" value="{{ seconds }}" oninput="this.previousElementSibling.value=this.value"></label>
+  </section>
+
+  <section class="card cardpad tpl-actions">
+    <button class="btn primary" type="button" id="tplRender" hx-post="/templates/{{ tname }}/preview" hx-target="#tplPreview" hx-swap="outerHTML">{{ icon("play") }} Render preview</button>
+    <span class="tpl-save">
+      <input name="preset_name" placeholder="Preset name, e.g. Shorts coral" maxlength="60" aria-label="Preset name">
+      <button class="btn small" type="submit" formaction="/templates/{{ tname }}/preset">{{ icon("check") }} Save preset</button>
+      {% if preset %}<button class="btn ghost small" type="submit" form="delPreset">{{ icon("trash") }} Delete preset</button>{% endif %}
+    </span>
+    <details class="tpl-use">
+      <summary class="btn small">{{ icon("plus") }} Use template</summary>
+      <div class="tpl-use-body">
+        {% if projects %}
+        <label class="field"><span>Project</span><select name="project">{% for p in projects %}<option value="{{ p.slug }}">{{ p.title }} · {{ p.format }} · {{ p.beats }} beats</option>{% endfor %}</select></label>
+        <label class="field"><span>Narration for this beat</span><textarea name="text" rows="2" placeholder="What the narrator says while this scene plays"></textarea></label>
+        <label class="field"><span>Where</span><select name="position"><option value="end">At the end</option><option value="0">At the start</option></select></label>
+        <button class="btn primary small" type="submit" formaction="/templates/{{ tname }}/use">Add to project</button>
+        {% else %}<p class="meta">No projects yet. Start one in the Studio, then add scenes here.</p>{% endif %}
+      </div>
+    </details>
+  </section>
+</form>
+<script type="application/json" id="tplDefaults">{{ tojson_safe(defaults) | safe }}</script>
+{% if preset %}<form id="delPreset" method="post" action="/templates/presets/{{ preset.id }}/delete"></form>{% endif %}
+<script src="/static/studio.js?v=2" defer></script>
+{% endblock %}

@@ -103,6 +103,7 @@ def run(
     out_name: str | None = None,
     video_format: str | None = None,
     progress: Progress | None = None,
+    cancel=None,
 ) -> RunResult:
     """Render a project.
 
@@ -130,6 +131,9 @@ def run(
     fmt = video.spec
     w, h = video.size(preview)
     fps = PREVIEW_FPS if preview else video.fps
+    if preview:
+        from beatframe import renderconf      # laptop setting: eco 480p15 (default) / balanced / quality
+        w, h, fps = renderconf.preset_size(renderconf.load().preview_preset, fmt.vertical)
     log(f"format: {fmt.name} ({fmt.aspect}, {w}x{h} @ {fps} fps)")
 
     # 1. voice + exact beat length (rounded up to whole frames)
@@ -167,7 +171,7 @@ def run(
             + (f"  ✗ custom code failed, used {job.fallback[0]}" if job.error else ""))
 
     report("render", done=0, total=len(jobs))
-    clips = render_all(jobs, clips_dir, workers=workers, on_done=done, on_start=started)
+    clips = render_all(jobs, clips_dir, workers=workers, on_done=done, on_start=started, cancel=cancel)
 
     failed = {j.index: j.error for j in jobs if j.error}
     errors_file = build / "custom_errors.txt"
@@ -208,7 +212,8 @@ def run(
         kinds_all = assemble.pick_transitions(len(project.beats), [bool(b.chapter) for b in project.beats],
                                               fmt.vertical)
         # transitions for the selected beats (a partial render uses the cuts between its own beats)
-        kinds = ["fadeblack" if project.beats[i - 1].chapter else kinds_all[i - 2] for i in order[1:]]
+        kinds = [project.beats[i - 1].transition or ("fadeblack" if project.beats[i - 1].chapter else kinds_all[i - 2])
+                 for i in order[1:]]
         joined = assemble.join_with_transitions(
             picture, sel_durs, [""] + kinds, build / (("joined_preview" if preview else "joined") + fmt.suffix + ".mp4"),
             fps, d=video.transition_seconds * (0.7 if fmt.vertical else 1.0), fast=preview)

@@ -90,6 +90,9 @@ def create_app(projects_root: Path, port: int = 8000) -> FastAPI:
         project = store.load(slug)
         spec = project.video.spec
         w, h = project.video.size(preview=(kind != "make"))
+        if kind != "make":
+            from beatframe import renderconf
+            w, h, _ = renderconf.preset_size(renderconf.load().preview_preset, spec.vertical)
         total = len(only) if only else len(project.beats)
         label = {"preview": f"Preview · {spec.label} {spec.aspect} · {w}×{h}",
                  "make": f"Final video · {spec.label} {spec.aspect} · {w}×{h}",
@@ -100,7 +103,7 @@ def create_app(projects_root: Path, port: int = 8000) -> FastAPI:
             res = pipeline.run(
                 p, store.file(slug), preview=(kind != "make"), only=only, log=job.log,
                 out_name="beat_preview" if kind == "beat" else None,
-                video_format=job.fmt, progress=job.on_progress,
+                video_format=job.fmt, progress=job.on_progress, cancel=job.cancel,
             )
             return {"video": res.video.name, "seconds": round(res.total, 1)}
 
@@ -200,11 +203,6 @@ def create_app(projects_root: Path, port: int = 8000) -> FastAPI:
                    "finals": sum(1 for p in items if p.has_final), "live": sum(1 for p in items if p.live),
                    "avg": round(sum(scores) / len(scores), 1) if scores else None, "reviewed": len(scores)}
         return page(request, "projects.html", nav="projects", crumb="Projects", projects=items, summary=summary)
-
-    @app.get("/templates", response_class=HTMLResponse)
-    def templates_page(request: Request):
-        thumbs = {p.stem for p in (HERE / "static" / "scenes").glob("*.png")}
-        return page(request, "templates.html", nav="templates", crumb="Templates", thumbs=thumbs)
 
     @app.get("/settings", response_class=HTMLResponse)
     def settings_page(request: Request):
@@ -320,6 +318,14 @@ def create_app(projects_root: Path, port: int = 8000) -> FastAPI:
     @app.get("/p/{slug}/job", response_class=HTMLResponse)
     def job_status(request: Request, slug: str):
         slug = get_slug(slug)
+        return page(request, "_job.html", slug=slug, job=jobs.latest(slug), out=_outs(slug))
+
+    @app.post("/p/{slug}/job/cancel", response_class=HTMLResponse)
+    def job_cancel(request: Request, slug: str):
+        slug = get_slug(slug)
+        j = jobs.latest(slug)
+        if j:
+            jobs.cancel(j.id)
         return page(request, "_job.html", slug=slug, job=jobs.latest(slug), out=_outs(slug))
 
     @app.post("/p/{slug}/render", response_class=HTMLResponse)
@@ -554,6 +560,8 @@ def create_app(projects_root: Path, port: int = 8000) -> FastAPI:
 
     from beatframe.web.features import register
     register(app, store=store, jobs=jobs, page=page, get_slug=get_slug, tpl=tpl)
+    from beatframe.web.library_routes import register as register_library
+    register_library(app, store=store, jobs=jobs, page=page, get_slug=get_slug, tpl=tpl, submit_render=submit_render)
     return app
 
 

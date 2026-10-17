@@ -1,24 +1,64 @@
 {% extends "base.html" %}
 {% from "_ui.html" import icon, head %}
-{% block title %}Templates · Beatframe{% endblock %}
+{% block title %}Template library · Beatframe{% endblock %}
 {% block body %}
-{% call head("", "Scene templates", "Every scene is a building block. Put its name in <code>scene:</code> and its settings in <code>params:</code>.") %}
+{% call head("", "Template library", "Every scene is a building block. Open one to change its settings, render a real preview, save a preset or add it to a project.") %}
   <a class="btn primary" href="/">Start a project</a>
 {% endcall %}
-{% set all = templates_list() %}
-<div class="row" style="margin-bottom:19px">
-  <div class="flex"><span class="pill purple">{{ icon("spark") }} Scene catalogue</span><span class="meta">{{ all | length }} scenes</span></div>
-  <span class="meta">{{ all | selectattr("short_native") | list | length }} drawn for Shorts · the rest fitted into 9:16</span>
+
+<div class="lib-bar">
+  <label class="lib-search">{{ icon("eye") }}<input type="search" id="libSearch" placeholder="Search scenes: neuron, ear, memory, reaction…" autocomplete="off" aria-label="Search templates"></label>
+  <div class="lib-chips" role="toolbar" aria-label="Filter by category">
+    <button type="button" class="chip on" data-cat="">All <span>{{ items | length }}</span></button>
+    <button type="button" class="chip" data-cat="__fav">{{ icon("star") }} Favourites <span id="favCount">{{ items | selectattr("favorite") | list | length }}</span></button>
+    {% for c in categories %}<button type="button" class="chip" data-cat="{{ c }}">{{ c }} <span>{{ items | selectattr("category", "equalto", c) | list | length }}</span></button>{% endfor %}
+  </div>
+  <label class="switch lib-switch"><input type="checkbox" id="libShort"><span>Short-ready only</span></label>
 </div>
-<div class="scene-grid">
-  {% for t in all %}
-  <article class="card scene-card">
-    <div class="scene-thumb">{% if t.name in thumbs %}<img src="/static/scenes/{{ t.name }}.png" alt="" loading="lazy">{% endif %}</div>
-    <div class="row"><h3 class="mono">{{ t.name }}</h3>
-      {% if t.short_native %}<span class="pill purple" title="Lays itself out for 9:16">Short-ready</span>{% else %}<span class="pill gray" title="Drawn for 16:9; fitted into the vertical frame in Shorts">16:9</span>{% endif %}</div>
+
+{% if recent %}
+<section class="lib-recent" aria-label="Recently used">
+  <div class="sectionlabel">Recently used</div>
+  <div class="lib-recent-row">
+    {% for t in recent %}<a class="recent-chip" href="/templates/{{ t.name }}"><span class="mono">{{ t.name }}</span><small>{{ t.category }}</small></a>{% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<div class="lib-grid" id="libGrid">
+  {% for t in items %}
+  <article class="card lib-card" data-name="{{ t.name }}" data-cat="{{ t.category }}" data-fav="{{ 1 if t.favorite else 0 }}"
+           data-short="{{ 1 if t.short_native else 0 }}" data-text="{{ (t.name ~ ' ' ~ t.description ~ ' ' ~ t.category) | lower }}">
+    <a class="lib-thumb" href="/templates/{{ t.name }}" aria-label="Open {{ t.name }}">
+      {% if t.poster %}<img src="{{ t.poster }}" alt="" loading="lazy">{% endif %}
+      {% if t.loop %}<video muted loop playsinline preload="none" data-src="{{ t.loop }}"></video><span class="lib-play">{{ icon("play") }}</span>{% endif %}
+      {% if not t.poster and not t.loop %}<span class="lib-noprev">No preview yet<br><small>Render one in the editor</small></span>{% endif %}
+    </a>
+    <div class="row lib-name"><h3 class="mono">{{ t.name }}</h3>
+      <button class="favbtn{{ ' on' if t.favorite }}" hx-post="/templates/{{ t.name }}/favorite" hx-swap="outerHTML" aria-pressed="{{ 'true' if t.favorite else 'false' }}" title="Favourite">{{ icon("star") }}</button></div>
     <p class="meta">{{ t.description }}</p>
-    <div class="tags">{% for f in t.fields %}<span class="tag" title="default: {{ f.value if f.value not in (None, '') else '—' }}">{{ f.name }}</span>{% else %}<span class="tag">no settings</span>{% endfor %}</div>
+    <div class="lib-tags">
+      <span class="pill gray">{{ t.category }}</span>
+      {% if t.short_native %}<span class="pill purple" title="Lays itself out for 9:16">Short-ready</span>{% else %}<span class="pill gray" title="Drawn for 16:9, fitted into 9:16">16:9</span>{% endif %}
+      {% if t.new %}<span class="pill green">Science library</span>{% endif %}
+      <span class="meta">{{ t.fields | length }} settings</span>
+    </div>
   </article>
   {% endfor %}
 </div>
+<div class="empty-s" id="libEmpty" hidden><div class="glowdot"></div><p>No scene matches. Try another word or category.</p></div>
+
+{% set comps = compositions() %}
+{% if comps %}
+<section class="card cardpad" style="margin-top:22px" id="compositions">
+  <div class="cardhead"><div><h2>Saved compositions</h2><p>Runs of scenes saved from a storyboard. Insert one into any project from its Storyboard tab.</p></div></div>
+  <div class="comp-list">
+    {% for c in comps %}
+    <div class="comp-item"><b>{{ c.name }}</b><span class="meta">{{ c.beats | length }} scenes · {{ c.beats | map(attribute="scene") | join(" → ") }}</span>
+      <form method="post" action="/compositions/{{ c.id }}/delete"><input type="hidden" name="back" value="/templates#compositions"><button class="icon-action del" title="Delete">{{ icon("trash") }}</button></form></div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+<script src="/static/studio.js?v=2" defer></script>
 {% endblock %}

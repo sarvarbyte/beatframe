@@ -209,12 +209,44 @@ def web(projects: Path = typer.Option(Path("projects"), help="Folder with your v
 
 
 @app.command("scene-thumbs")
-def scene_thumbs():
-    """Render one still per scene template for the Templates page (takes a few minutes)."""
+def scene_thumbs(names: Optional[list[str]] = typer.Argument(None, help="only these templates")):
+    """Render a still and a short loop per scene template for the Template library (a few minutes)."""
     from beatframe import scene_thumbs as st
 
-    made = st.make(log=typer.echo)
-    typer.echo(f"✓ {len(made)} stills in {st.OUT_DIR}")
+    made = st.make(log=typer.echo, only=names or None)
+    typer.echo(f"✓ {len(made)} files in {st.OUT_DIR}")
+
+
+@app.command()
+def bench(names: list[str] = typer.Argument(..., help="templates to measure"),
+          preset: list[str] = typer.Option(["eco", "quality"], help="eco | balanced | quality (repeatable)"),
+          format: list[str] = typer.Option(["long", "short"], help="long | short (repeatable)"),
+          seconds: float = typer.Option(6.0, help="clip length"),
+          out: Path = typer.Option(Path("bench"), help="folder for bench_report.md/.json")):
+    """Measure real render cost (time, peak memory, CPU, file size) of templates on this computer."""
+    from beatframe import bench as bench_mod
+
+    bench_mod.run(names, preset, format, seconds=seconds, out_dir=out, log=typer.echo)
+    typer.echo(f"✓ report: {out / 'bench_report.md'}")
+
+
+@app.command("contact-sheet")
+def contact_sheet(names: list[str] = typer.Argument(..., help="templates"),
+                  format: list[str] = typer.Option(["long", "short"], help="long | short (repeatable)"),
+                  seconds: float = typer.Option(6.0, help="clip length"),
+                  out: Path = typer.Option(Path("contact_sheets"), help="output folder")):
+    """First / middle / last frame of each template (real eco renders) on one sheet per format."""
+    from beatframe import contact, library
+
+    for fmt in format:
+        rows = []
+        for n in names:
+            job = library.preview_job(n, {}, fmt, seconds)
+            clip = library.cached_preview(job) or library.render_preview(job)
+            rows.append((n, contact.frames(clip, job.duration, width=480 if fmt == "long" else 270)))
+            typer.echo(f"  {n} {fmt}")
+        f = contact.sheet(rows, out / f"contact_sheet_{fmt}.png")
+        typer.echo(f"✓ {f}")
 
 
 @app.command("import")

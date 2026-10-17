@@ -1,10 +1,18 @@
 {% for f in fields %}
-<label class="field">
+{% set wrap = "div" if f.kind == "swatch" else "label" %}
+<{{ wrap }} class="field">
   <span>{{ f.name | replace("_", " ") }}</span>
   {% if f.kind == "bool" %}
     <span class="switch" style="padding:4px 0"><span class="meta">{{ "on" if f.value else "off" }}</span><input type="checkbox" name="p.{{ f.name }}" {% if f.value %}checked{% endif %}></span>
   {% elif f.kind == "select" %}
     <select name="p.{{ f.name }}">{% for o in f.options %}<option {% if o == f.value %}selected{% endif %}>{{ o }}</option>{% endfor %}</select>
+  {% elif f.kind == "range" %}
+    <span class="rangefield"><input type="range" name="p.{{ f.name }}" min="{{ f.min }}" max="{{ f.max }}" step="{{ f.step }}" value="{{ f.value }}"
+      oninput="this.nextElementSibling.value=this.value"><output>{{ f.value }}</output></span>
+  {% elif f.kind == "swatch" %}
+    <span class="swatches" role="radiogroup">{% for o in f.options %}
+      <label title="{{ o.value }}"><input type="radio" name="p.{{ f.name }}" value="{{ o.value }}" {% if o.value == f.value %}checked{% endif %}>
+        <i>{% for c in o.colors %}<b style="background:{{ c }}"></b>{% endfor %}</i><small>{{ o.value }}</small></label>{% endfor %}</span>
   {% elif f.kind == "number" %}
     <input type="number" step="{{ f.step }}" name="p.{{ f.name }}" value="{{ f.value }}">
   {% elif f.kind == "textarea" %}
@@ -14,7 +22,7 @@
   {% else %}
     <input name="p.{{ f.name }}" value="{{ f.value }}">
   {% endif %}
-</label>
+</{{ wrap }}>
 {% else %}
 <p class="meta">This scene has no settings.</p>
 {% endfor %}

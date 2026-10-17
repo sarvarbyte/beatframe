@@ -8,10 +8,11 @@
     <div class="job-top">
       <div class="job-title">
         {% if job.status in ("queued", "running") %}<span class="spin"></span>
+        {% elif job.status == "cancelled" %}<span class="errmark" style="background:var(--muted,#888)">■</span>
         {% elif job.status == "done" %}<span class="okmark"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>
         {% else %}<span class="errmark">✕</span>{% endif %}
         <div>
-          <h3>{% if job.status == "failed" %}{{ what[0] }} failed{% elif job.status == "done" %}{{ what[1] }}{% elif job.status == "queued" %}Waiting in queue{% else %}{{ what[2] }}{% endif %}</h3>
+          <h3>{% if job.status == "cancelled" %}{{ what[0] }} stopped{% elif job.status == "failed" %}{{ what[0] }} failed{% elif job.status == "done" %}{{ what[1] }}{% elif job.status == "queued" %}Waiting in queue{% else %}{{ what[2] }}{% endif %}</h3>
           <small>{{ job.label }}</small>
         </div>
       </div>
@@ -42,6 +43,11 @@
     {% endif %}
 
     {% if job.status == "failed" %}<div class="alert err"><pre>{{ job.error }}</pre></div>{% endif %}
+    {% if job.status == "cancelled" %}<p class="hint">{{ job.error or "Stopped." }}</p>{% endif %}
+    {% if job.is_render and job.status in ("queued", "running") %}
+    <div class="flex" style="margin-top:12px"><button class="btn ghost small" hx-post="/p/{{ slug }}/job/cancel" hx-target="#job" hx-swap="outerHTML">■ Stop render</button>
+      <span class="hint" style="margin:0">Scenes already rendered stay cached.</span></div>
+    {% endif %}
 
     {% if job.status == "done" %}
       {% if job.kind == "beat" and out.beat_preview %}

@@ -62,6 +62,9 @@ class Beat(BaseModel):
     captions: bool | None = None       # None = automatic (off for scenes that already show the text)
     pad: float = 0.35                  # seconds of breathing room after the voice
     min_duration: float = 2.0
+    # transition INTO this beat; None = automatic (varied, a dip to black at chapters)
+    transition: Literal["cut", "fade", "fadeblack", "dissolve", "smoothleft", "smoothup", "wipeleft", "wipeup",
+                        "slideleft", "slideup", "circleopen", "radial"] | None = None
 
 
 class Video(BaseModel):

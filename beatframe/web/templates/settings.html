@@ -48,10 +48,40 @@
     </div>
   </section>
 
+  <section class="card cardpad" id="render">
+    {% set rs = render_settings() %}
+    <div class="cardhead"><div><h2>Rendering on this computer</h2><p>Keeps the laptop responsive: how many Manim processes run at once, their priority and the preview quality.</p></div>
+      <span class="pill {{ 'green' if rs.workers == 1 else 'yellow' }}">{{ rs.workers }} at a time</span></div>
+    <form method="post" action="/settings/render" class="render-form">
+      <span class="fieldlabel">Preview quality</span>
+      <div class="lab-styles" role="radiogroup" aria-label="Preview quality">
+        {% for key, pr in render_presets.items() %}<label class="lab-style preset-card"><input type="radio" name="preview_preset" value="{{ key }}" {% if rs.preview_preset == key %}checked{% endif %}><span><b>{{ pr.label }}</b><small>{{ pr.hint }}</small></span></label>{% endfor %}
+      </div>
+      <div class="beatform">
+        <label class="field"><span>Manim processes at once <em>· 1 is safest on a laptop</em></span>
+          <select name="workers">{% for n in range(1, 5) %}<option value="{{ n }}" {% if rs.workers == n %}selected{% endif %}>{{ n }}{{ " (recommended)" if n == 1 else "" }}</option>{% endfor %}</select></label>
+        <label class="field"><span>Priority <em>· higher = gentler on the computer</em></span>
+          <select name="nice">{% for n, lab in [(0, "Normal"), (5, "Lower"), (10, "Low (recommended)"), (15, "Lowest but one"), (19, "Lowest")] %}<option value="{{ n }}" {% if rs.nice == n %}selected{% endif %}>{{ lab }}</option>{% endfor %}</select></label>
+      </div>
+      <button class="btn primary small">Save render settings</button>
+      <p class="hint">The final video always renders at full size (1080p). Saved in <code>~/.beatframe/render.json</code>; <code>BEATFRAME_WORKERS</code> overrides the process count.</p>
+    </form>
+    {% set stats = recent_render_stats() %}
+    {% if stats %}
+    <div class="sectionlabel" style="margin-top:18px">Last measured renders</div>
+    <div class="atable"><table>
+      <thead><tr><th>scene</th><th>size</th><th>clip</th><th>render</th><th>peak memory</th><th>CPU</th></tr></thead>
+      <tbody>{% for r in stats %}<tr><td class="mono">{{ r.template }}</td><td>{{ r.width }}×{{ r.height }} · {{ r.fps }} fps</td><td>{{ r.duration }} s</td>
+        <td>{{ r.seconds }} s</td><td>{{ r.peak_rss_mb }} MiB</td><td>{{ r.cpu_percent }}%</td></tr>{% endfor %}</tbody>
+    </table></div>
+    <p class="hint">Measured from each uncached clip (Manim process only; cached clips cost nothing).</p>
+    {% endif %}
+  </section>
+
   <section class="card cardpad">
     <div class="cardhead"><h2>Studio preferences</h2><span class="pill gray">v{{ version }}</span></div>
     <div class="settingrow"><span>Projects directory</span><b class="mono" style="font-size:11px">{{ root }}</b></div>
-    <div class="settingrow"><span>Preview quality</span><b>480p · 15 fps</b></div>
+    <div class="settingrow"><span>Preview quality</span><b>{{ render_presets[render_settings().preview_preset].hint }}</b></div>
     <div class="settingrow"><span>Final formats</span><b>{% for f in formats %}{{ f.label }} {{ f.width }}×{{ f.height }}{% if not loop.last %} · {% endif %}{% endfor %}</b></div>
     <div class="settingrow" style="border:0"><span>Local server</span><span class="pill green">Ready</span></div>
     <p class="hint">A project's format and voice live in its YAML, so the command line (<code>beatframe make … --format short</code>) gives the same result.</p>

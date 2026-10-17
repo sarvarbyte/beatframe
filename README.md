@@ -133,6 +133,14 @@ picks a different colour set per beat, or name one: sunny, mint, sky, berry, lil
 
 `projects/bright-demo/` uses every one of them. `beatframe templates` lists their settings.
 
+Science library (20 templates for neuroscience, perception, experiments and biology:
+`neural_impulse`, `bone_conduction`, `blind_spot_test`, `reaction_time`, `memory_reconstruction`,
+`sleep_cycle`, `stress_response`, `inner_ear`, `retina_processing`, `touch_receptors`, `reflex_arc`,
+`balance_experiment`, `stroop_effect`, `ring_finger_test`, `attention_spotlight`, `blood_circulation`,
+`oxygen_exchange`, `dna_unzipping`, `immune_response`, `evolution_tree`): see
+[docs/TEMPLATE_LIBRARY.md](docs/TEMPLATE_LIBRARY.md), which also covers the Template library page,
+presets, compositions and the laptop render settings (one Manim process at a time by default).
+
 Add a template: create `beatframe/templates/<name>.py` with a `Template` subclass
 (`name`, a pydantic `Params`, and `build(scene, p, duration)`). It is picked up automatically.
 
@@ -160,81 +168,3 @@ projects/touch/touch.yaml   example: opening of the "touch" video
 ```
 
 Roadmap: AI script planner, more templates (and native 9:16 layouts for the 16:9 drawings).
-
-## Custom scenes (`scene: custom`)
-
-When no template fits a beat, write that beat's own Manim code into the script. The animation can
-wait for a spoken word, so it lands exactly when the narrator says it.
-
-```yaml
-  - text: "Your brain fills the gap before you notice it."
-    scene: custom
-    params:
-      theme: night          # night | bright
-      fallback: statement   # used if the code fails (default: statement with the beat's text)
-      code: |
-        gap = Rectangle(width=4, height=2).set_stroke(PAPER, 3)
-        scene.play(Create(gap), run_time=0.6)
-        wait_until("fills")
-        scene.play(gap.animate.set_fill(GLOW, 0.8), run_time=0.5)
-```
-
-In `code`: `scene`/`self`, all of Manim, brand colours (NIGHT, PAPER, GLOW, EMBER, DIM, SERIF, SANS),
-`frame_w()`, `frame_h()`, `fit()`, `glow()`, `kit`, `duration`, `words`, `at("word")`,
-`wait_until("word" | seconds)`, `now()`, `rest()`. Full list: `beatframe/templates/custom.py`.
-
-If a custom scene fails at render time the video still renders: that beat uses its fallback, and the
-error is saved in `build/custom_errors.txt` (Studio shows it under the script).
-
-## Pre-render check
-
-`beatframe check project.yaml` (and the Script tab in Studio) checks, before rendering: scene names and
-params, custom code that does not parse, cue words the narrator never says, missing image/music/voice
-files, beats that show exactly the same picture, the same scene 3+ times in a row, and one scene
-filling more than 30% of a long video. `--test` also test-renders every custom scene at 240p.
-
-Own recordings (`voice.provider: files`) get real word timings when faster-whisper is installed:
-`.venv/bin/pip install -e '.[whisper]'`.
-
-## Scene library
-
-A custom scene that came out well can be reused: in Studio press **Save scene to library** under a
-custom beat, or `beatframe save-scene project.yaml --beat 7 --name gap_fill`. It is stored in
-`scene_library/gap_fill.yaml` and works like a template from then on: `scene: gap_fill`, with
-`params: {vars: {label: "..."}}` read in its code as `v["label"]`. The style guard applies to every
-custom and library scene: `Text(...)` gets the channel font and colour and never overflows the frame,
-and `safe(group)` fits a whole group into the safe area.
-
-## Variety
-
-`beatframe check` compares the script with the last 3 videos: the same custom code again, or the same
-favourite scenes again, gets a warning. `beatframe history` prints the made topics and the scene mix of
-the last 5 videos; the same block is appended to the Stats report in Studio, so Claude sees it too.
-
-## Transitions
-
-Beats are joined with short varied transitions (fade, smooth slide, wipe, circle...) that never repeat
-twice in a row; a new chapter dips to black. Every beat still starts exactly on its voice. Turn them
-off with `video: {transitions: cut}`; change the length with `transition_seconds` (default 0.3).
-
-## Pictures (`scene: photo`)
-
-A full-frame picture with a slow Ken Burns move (in, out, left, right, up; auto picks one) and an
-optional caption:
-
-```yaml
-  - text: "In 1953, one man lost the ability to make new memories."
-    scene: photo
-    params: {prompt: "1950s hospital room, a man by a window", caption: "Patient H.M., 1953"}
-```
-
-Without `image` the file is `images/beat_NNN.png`. `beatframe image-prompts project.yaml` (and the
-Script tab) lists every picture still missing with its file name and full prompt, ready to paste into
-Google Flow or Gemini. Replacing a picture re-renders only its beat.
-
-## Channel profiles
-
-`profiles/*.yaml` hold a channel's look: colours, fonts, music mood, picture style and voice.
-`beatframe profile use war-maps` makes one active (copied to `profile.yaml`), `beatframe profile off`
-returns to the built-in Human Unknowns look, `beatframe profile` shows the active one. Extra fonts go in
-a `fonts/` folder next to the app.

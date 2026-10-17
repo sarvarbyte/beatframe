@@ -346,6 +346,71 @@
     draw();
   }
 
-  const init = () => { storyboard(); compare(); lab(); qualityPage(); statsPage(); };
+  /* ------------------------------------------------------------ TEMPLATE LIBRARY */
+  function libraryPage() {
+    const grid = $("#libGrid"); if (!grid) return;
+    const cards = $$(".lib-card", grid), search = $("#libSearch"), short = $("#libShort");
+    let cat = "";
+    const apply = () => {
+      const q = (search.value || "").trim().toLowerCase().split(/\s+/).filter(Boolean);
+      let shown = 0;
+      cards.forEach(c => {
+        const ok = (!cat || (cat === "__fav" ? c.dataset.fav === "1" : c.dataset.cat === cat))
+          && (!short.checked || c.dataset.short === "1") && q.every(w => c.dataset.text.includes(w));
+        c.hidden = !ok; if (ok) shown++;
+      });
+      $("#libEmpty").hidden = shown > 0;
+    };
+    $$(".lib-chips .chip").forEach(b => b.addEventListener("click", () => {
+      $$(".lib-chips .chip").forEach(x => x.classList.toggle("on", x === b)); cat = b.dataset.cat; apply();
+    }));
+    search.addEventListener("input", apply); short.addEventListener("change", apply);
+    // real catalogue renders play on hover / keyboard focus only (nothing decodes video until asked)
+    cards.forEach(c => {
+      const v = $("video", c); if (!v) return;
+      const play = () => { if (!v.src) v.src = v.dataset.src; c.classList.add("playing"); v.play().catch(() => {}); };
+      const stop = () => { c.classList.remove("playing"); v.pause(); };
+      c.addEventListener("mouseenter", play); c.addEventListener("mouseleave", stop);
+      c.addEventListener("focusin", play); c.addEventListener("focusout", stop);
+    });
+    document.body.addEventListener("htmx:afterSettle", () => {      // a favourite star was toggled
+      cards.forEach(c => { c.dataset.fav = $(".favbtn.on", c) ? "1" : "0"; });
+      $("#favCount").textContent = cards.filter(c => c.dataset.fav === "1").length;
+      if (cat === "__fav") apply();
+    });
+  }
+
+  function templateEditor() {
+    const form = $("#tplForm"); if (!form) return;
+    const name = form.dataset.name, defaults = JSON.parse(($("#tplDefaults") || {}).textContent || "{}");
+    const yamlBox = $("#tplYaml"), stale = $("#tplStale");
+    const own = el => el.name && (el.name.startsWith("p.") || el.name === "fmt" || el.name === "seconds");
+    const val = (k, d) => {
+      const els = $$(`[name="p.${k}"]`, form); if (!els.length) return d;
+      const el = els.find(e => e.type !== "radio" || e.checked) || els[0];
+      if (el.type === "checkbox") return el.checked;
+      if (el.type === "range" || el.type === "number" || typeof d === "number") { const n = parseFloat(el.value); return isNaN(n) ? d : n; }
+      if (Array.isArray(d)) return el.value.split(",").map(x => x.trim()).filter(Boolean);
+      return el.value;
+    };
+    const y = v => typeof v === "string" ? JSON.stringify(v) : Array.isArray(v) ? "[" + v.map(y).join(", ") + "]" : String(v);
+    const yaml = () => {
+      const lines = Object.keys(defaults).map(k => [k, val(k, defaults[k])]).filter(([k, v]) => JSON.stringify(v) !== JSON.stringify(defaults[k]));
+      yamlBox.textContent = `  - text: "…"\n    scene: ${name}` + (lines.length ? "\n    params:\n" + lines.map(([k, v]) => `      ${k}: ${y(v)}`).join("\n") : "");
+    };
+    $$(".seg label", form).forEach(l => $("input", l).addEventListener("change", () => {
+      $$(".seg label", form).forEach(x => x.classList.toggle("on", x === l));
+    }));
+    form.addEventListener("input", e => { if (own(e.target)) { yaml(); stale.hidden = false; } });
+    form.addEventListener("change", e => { if (own(e.target)) { yaml(); stale.hidden = false; } });
+    form.addEventListener("keydown", e => {
+      if (e.key === "Enter" && e.target.tagName === "INPUT" && e.target.name !== "preset_name") { e.preventDefault(); $("#tplRender").click(); }
+    });
+    document.body.addEventListener("htmx:afterSwap", e => { if (e.target.id === "tplPreview" && e.target.querySelector("video")) stale.hidden = true; });
+    $("#tplCopy").addEventListener("click", () => navigator.clipboard.writeText(yamlBox.textContent).then(() => say("YAML copied"), () => say("Copy failed")));
+    yaml();
+  }
+
+  const init = () => { storyboard(); compare(); lab(); qualityPage(); statsPage(); libraryPage(); templateEditor(); };
   document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", init) : init();
 })();
